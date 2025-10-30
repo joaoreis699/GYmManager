@@ -4,7 +4,7 @@
 
 package br.com.gymmanager.view;
 
-import br.com.gymmanager.dao.UsuarioDAO;
+import br.com.gymmanager.dao.FuncionarioDAO;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
@@ -87,42 +87,33 @@ public class TeladeLogin extends JFrame {
         painel.add(botaoEntrar);
         
         botaoEntrar.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // Pega os dados digitados pelo usuário
-            String cpf = campoCpf.getText();
-            String senha = new String(campoSenha.getPassword());
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Pega os dados digitados pelo usuário
+                String cpf = campoCpf.getText();
+                String senha = new String(campoSenha.getPassword());
 
-            // Verifica se os campos não estão vazios
-            if (cpf.isEmpty() || senha.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Por favor, preencha CPF e Senha.", "Campos Vazios", JOptionPane.WARNING_MESSAGE);
-                return; // Para a execução
+                // Verifica se os campos não estão vazios
+                if (cpf.isEmpty() || senha.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Por favor, preencha CPF e Senha.", "Campos Vazios", JOptionPane.WARNING_MESSAGE);
+                    return; // Para a execução
+                }
+                FuncionarioDAO funcionarioDAO = new FuncionarioDAO();
+
+                if (funcionarioDAO.verificarCredenciais(cpf, senha) != null){
+
+                    JOptionPane.showMessageDialog(null, "Login realizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+
+                    TelaPrincipal telaPrincipal = new TelaPrincipal();
+                    telaPrincipal.setVisible(true);
+                    dispose(); 
+                    
+                } else {
+                    JOptionPane.showMessageDialog(null, "CPF ou Senha inválidos. ", "Erro de login.", JOptionPane.ERROR_MESSAGE);
+                }
             }
-
-            // Cria uma instância do DAO para verificar as credenciais
-            UsuarioDAO usuarioDAO = new UsuarioDAO();
-
-            if (usuarioDAO.verificarCredenciais(cpf, senha)) {
-    // Se as credenciais estiverem corretas
-    JOptionPane.showMessageDialog(null, "Login realizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-
-    // PASSO 1: Cria uma instância da nossa nova tela
-    TelaPrincipal telaPrincipal = new TelaPrincipal();
-    
-    // PASSO 2: Torna a tela principal visível
-    telaPrincipal.setVisible(true);
-
-    // PASSO 3: Fecha a tela de login atual
-    dispose(); 
-
-} else {
-    // Se as credenciais estiverem incorretas
-    JOptionPane.showMessageDialog(null, "CPF ou Senha inválidos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
-}
-        }
-    });
-}
-
+        });
+    }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new TeladeLogin().setVisible(true);

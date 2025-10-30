@@ -7,6 +7,8 @@ package br.com.gymmanager.view;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class TelaPrincipal extends JFrame {
 
@@ -91,12 +93,28 @@ public class TelaPrincipal extends JFrame {
         painelAcoes.setBackground(COR_FUNDO);
         painelAcoes.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        painelAcoes.add(criarBotaoAcao("Gestão de Alunos", "/Imagens/btn_alunos.png"));
-        painelAcoes.add(criarBotaoAcao("Controle de Caixa", "/Imagens/btn_caixa.png"));
-        painelAcoes.add(criarBotaoAcao("Gerar Ficha de Treino", "/Imagens/btn_treino.png"));
-        painelAcoes.add(criarBotaoAcao("Gestão de Funcionários", "/Imagens/btn_funcionarios.png"));
-        painelAcoes.add(criarBotaoAcao("Consultar Planos", "/Imagens/btn_planos.png"));
-        // Você pode adicionar mais um botão aqui para completar a grade ou deixar vazio.
+        JButton botaoGestaoAlunos = criarBotaoAcao("Gestão de Alunos", "/Imagens/btn_alunos.png");
+        JButton botaoControleCaixa = criarBotaoAcao("Controle de Caixa", "/Imagens/btn_caixa.png");
+        JButton botaoGerarFichaTreino = criarBotaoAcao("Gerar Ficha de Treino", "/Imagens/btn_treino.png");
+        JButton botaoGestaoFuncionarios = criarBotaoAcao("Gestão de Funcionários", "/Imagens/btn_funcionarios.png");
+        JButton botaoConsultarPlanos = criarBotaoAcao("Consultar Planos", "/Imagens/btn_planos.png");
+        
+        botaoGestaoFuncionarios.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TelaGestaoFuncionario abrirGestaoFuncionario = new TelaGestaoFuncionario(TelaPrincipal.this);
+                abrirGestaoFuncionario.setVisible(true);
+                
+                setVisible(false);
+            }
+        });
+        
+        painelAcoes.add(botaoGestaoFuncionarios);
+        painelAcoes.add(botaoGestaoAlunos);
+        painelAcoes.add(botaoControleCaixa);
+        painelAcoes.add(botaoGerarFichaTreino);
+        painelAcoes.add(botaoConsultarPlanos);
+
         
         painelDashboard.add(painelAcoes, BorderLayout.CENTER);
         
@@ -194,6 +212,8 @@ public class TelaPrincipal extends JFrame {
         });
         return botao;
     }
+    
+     
 
     public static void main(String[] args) {
         // Define um Look and Feel mais moderno, se disponível

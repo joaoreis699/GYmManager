@@ -14,6 +14,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.gymmanager.model.Funcionario;
+import br.com.gymmanager.dao.FuncionarioDAO;
+
 // --- Imports das suas outras classes (ajuste o pacote se necessário) ---
 // (Você precisará criar estas classes ou importá-las do pacote correto)
 // import br.com.gymmanager.model.Funcionario;
@@ -69,62 +72,66 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
     private JPasswordField campoSenha, campoConfirmaSenha;
     private JButton botaoAcaoPrimaria, botaoAcaoSecundaria, botaoSelecionarFoto;
     private JLabel labelFotoPreview;
-    private String caminhoDaFotoSelecionada = null;
+        private String caminhoDaFotoSelecionada = null;
 
-    // --- Componentes da Lista (Esquerda) ---
-    private JPanel painelListaCards;
-    private JScrollPane scrollLista;
+        // --- Componentes da Lista (Esquerda) ---
+        private JPanel painelListaCards;
+        private JScrollPane scrollLista;
 
-    // --- Controle de Estado ---
-    private Funcionario funcionarioSelecionadoParaEdicao = null;
-    private FuncionarioDAO funcionarioDAO;
+        // --- Controle de Estado ---
+        private Funcionario funcionarioSelecionadoParaEdicao = null;
+        private FuncionarioDAO funcionarioDAO;
 
-    public TelaGestaoFuncionario() { // <--- NOME DA CLASSE ATUALIZADO
-        setTitle("GymManager - Gestão de Funcionários");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setMinimumSize(new Dimension(1024, 768));
-        setLocationRelativeTo(null);
+        private JFrame abrirTelaPrincipal;
 
-        this.funcionarioDAO = new FuncionarioDAO();
+        public TelaGestaoFuncionario(JFrame telaPrincipal) { // <--- NOME DA CLASSE ATUALIZADO
+            this.abrirTelaPrincipal = telaPrincipal;
 
-        JPanel painelFundo = new JPanel(new BorderLayout(20, 20));
-        painelFundo.setBackground(COR_FUNDO);
-        painelFundo.setBorder(new EmptyBorder(20, 20, 20, 20));
-        setContentPane(painelFundo);
+            setTitle("GymManager - Gestão de Funcionários");
+            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+            setMinimumSize(new Dimension(1024, 768));
+            setLocationRelativeTo(null);
 
-        // --- 1. CABEÇALHO (HEADER) ---
-        painelFundo.add(criarHeader(), BorderLayout.NORTH);
+            this.funcionarioDAO = new FuncionarioDAO();
 
-        // --- 2. PAINEL LADO ESQUERDO (LISTA E BOTÃO ADICIONAR) ---
-        painelFundo.add(criarPainelLadoEsquerdo(), BorderLayout.CENTER);
+            JPanel painelFundo = new JPanel(new BorderLayout(20, 20));
+            painelFundo.setBackground(COR_FUNDO);
+            painelFundo.setBorder(new EmptyBorder(20, 20, 20, 20));
+            setContentPane(painelFundo);
 
-        // --- 3. PAINEL LADO DIREITO (FORMULÁRIO DINÂMICO) ---
-        painelFundo.add(criarPainelLadoDireito(), BorderLayout.EAST);
+            // --- 1. CABEÇALHO (HEADER) ---
+            painelFundo.add(criarHeader(), BorderLayout.NORTH);
 
-        // --- 4. RODAPÉ ---
-        JLabel labelRodape = new JLabel("© 2025 GymManager — Todos os direitos reservados", SwingConstants.CENTER);
-        labelRodape.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        labelRodape.setForeground(COR_TEXTO_PADRAO);
-        painelFundo.add(labelRodape, BorderLayout.SOUTH);
+            // --- 2. PAINEL LADO ESQUERDO (LISTA E BOTÃO ADICIONAR) ---
+            painelFundo.add(criarPainelLadoEsquerdo(), BorderLayout.CENTER);
 
-        // --- Ações Iniciais ---
-        atualizarListaFuncionarios();
-    }
+            // --- 3. PAINEL LADO DIREITO (FORMULÁRIO DINÂMICO) ---
+            painelFundo.add(criarPainelLadoDireito(), BorderLayout.EAST);
 
-    /**
-     * Cria o cabeçalho padrão.
-     * ATUALIZADO: Botão 'Voltar' usa o novo estilo 'estilizarBotaoPadrao'.
-     */
-    private JPanel criarHeader() {
-        JPanel painelHeader = new JPanel(new BorderLayout());
-        painelHeader.setBackground(COR_FUNDO);
+            // --- 4. RODAPÉ ---
+            JLabel labelRodape = new JLabel("© 2025 GymManager — Todos os direitos reservados", SwingConstants.CENTER);
+            labelRodape.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            labelRodape.setForeground(COR_TEXTO_PADRAO);
+            painelFundo.add(labelRodape, BorderLayout.SOUTH);
 
-        JPanel painelLogoTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
-        painelLogoTitulo.setOpaque(false);
+            // --- Ações Iniciais ---
+            atualizarListaFuncionarios();
+        }
 
-        try {
-            ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Imagens/logo.png"));
+        /**
+         * Cria o cabeçalho padrão.
+         * ATUALIZADO: Botão 'Voltar' usa o novo estilo 'estilizarBotaoPadrao'.
+         */
+        private JPanel criarHeader() {
+            JPanel painelHeader = new JPanel(new BorderLayout());
+            painelHeader.setBackground(COR_FUNDO);
+
+            JPanel painelLogoTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+            painelLogoTitulo.setOpaque(false);
+
+            try {
+                ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Imagens/logo.png"));
             Image logoRedimensionada = logoIcon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
             JLabel labelLogo = new JLabel(new ImageIcon(logoRedimensionada));
             painelLogoTitulo.add(labelLogo);
@@ -140,6 +147,24 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         painelHeader.add(painelLogoTitulo, BorderLayout.WEST);
 
         JButton botaoVoltar = new JButton("Voltar a Tela Principal");
+        
+        botaoVoltar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                abrirTelaPrincipal.setExtendedState(JFrame.NORMAL);
+                abrirTelaPrincipal.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                abrirTelaPrincipal.setVisible(true);
+                abrirTelaPrincipal.toFront();
+                
+                SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    dispose(); // Joga esta janela (Gestão) no lixo
+                }
+            });
+            } 
+        });
         
         // --- ESTILO CORRIGIDO ---
         estilizarBotaoVoltar(botaoVoltar); 
@@ -747,11 +772,14 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
                 return;
             }
         }
-        
+            
+        boolean sucesso = false;
+     
+        cpf = cpf.replaceAll("[.-]", "");
         // 3. Salvar (Criar ou Editar)
         if (funcionarioSelecionadoParaEdicao == null) {
             // --- CRIAR NOVO ---
-            Funcionario novoFunc = new Funcionario();
+            Funcionario novoFunc = new Funcionario(nome, cpf, dataNasc, 0, cargo, dataAdmissao, senha, caminhoDaFotoSelecionada);
             novoFunc.setId(0); // DAO simula auto-incremento
             novoFunc.setNome(nome);
             novoFunc.setCpf(cpf);
@@ -761,8 +789,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
             novoFunc.setSenha(senha); // Em um sistema real, use Hash!
             novoFunc.setCaminhoFoto(caminhoDaFotoSelecionada);
 
-            funcionarioDAO.cadastrar(novoFunc);
-            JOptionPane.showMessageDialog(this, "Funcionário cadastrado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            sucesso = funcionarioDAO.cadastrar(novoFunc);
 
         } else {
             // --- EDITAR EXISTENTE ---
@@ -782,13 +809,20 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
                 funcionarioSelecionadoParaEdicao.setCaminhoFoto(caminhoDaFotoSelecionada);
             }
 
-            funcionarioDAO.atualizar(funcionarioSelecionadoParaEdicao);
-            JOptionPane.showMessageDialog(this, "Funcionário atualizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            sucesso = funcionarioDAO.atualizar(funcionarioSelecionadoParaEdicao);
         }
 
         // 4. Limpar e Atualizar
-        voltarAoPlaceholder();
-        atualizarListaFuncionarios();
+        if(sucesso) {
+            if(funcionarioSelecionadoParaEdicao == null) {
+                JOptionPane.showMessageDialog(this, "Funcionário cadastrado com sucesso!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Funcionário atualizado com sucesso!");
+            }
+        
+            voltarAoPlaceholder();
+            atualizarListaFuncionarios();
+        }
     }
 
     /**
@@ -896,96 +930,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         UIManager.put("PasswordField.background", Color.WHITE);
         
         SwingUtilities.invokeLater(() -> {
-            new TelaGestaoFuncionario().setVisible(true); // <--- NOME DA CLASSE ATUALIZADO
+            new TelaGestaoFuncionario(null).setVisible(true); // <--- NOME DA CLASSE ATUALIZADO
         });
-    }
-}
-
-/**
- * POJO (Modelo) que representa um Funcionário.
- * (Certifique-se de que esta classe esteja no pacote br.com.gymmanager.model)
- */
-class Funcionario {
-    private int id;
-    private String nome;
-    private String cpf;
-    private String dataNascimento; // Simplificado como String
-    private String cargo;
-    private String dataAdmissao; // Simplificado como String
-    private String senha;
-    private String caminhoFoto;
-
-    // Getters e Setters (Necessários para o código funcionar)
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
-    public String getCpf() { return cpf; }
-    public void setCpf(String cpf) { this.cpf = cpf; }
-    public String getDataNascimento() { return dataNascimento; }
-    public void setDataNascimento(String dataNascimento) { this.dataNascimento = dataNascimento; }
-    public String getCargo() { return cargo; }
-    public void setCargo(String cargo) { this.cargo = cargo; }
-    public String getDataAdmissao() { return dataAdmissao; }
-    public void setDataAdmissao(String dataAdmissao) { this.dataAdmissao = dataAdmissao; }
-    public String getSenha() { return senha; }
-    public void setSenha(String senha) { this.senha = senha; }
-    public String getCaminhoFoto() { return caminhoFoto; }
-    public void setCaminhoFoto(String caminhoFoto) { this.caminhoFoto = caminhoFoto; }
-}
-
-/**
- * DAO (Data Access Object) simulado para Funcionário.
- * (Certifique-se de que esta classe esteja no pacote br.com.gymmanager.dao)
- */
-class FuncionarioDAO {
-    private static List<Funcionario> bancoDeDadosSimulado = new ArrayList<>();
-    private static int proximoId = 1;
-
-    // Adiciona alguns dados de exemplo
-    static {
-        Funcionario f1 = new Funcionario();
-        f1.setId(proximoId++);
-        f1.setNome("Ana Silva (Exemplo)");
-        f1.setCpf("111.111.111-11");
-        f1.setCargo("Recepcionista");
-        f1.setDataAdmissao("01/03/2024");
-        f1.setDataNascimento("15/05/1998");
-        f1.setSenha("123");
-        f1.setCaminhoFoto(null); // Sem foto
-        bancoDeDadosSimulado.add(f1);
-        
-        Funcionario f2 = new Funcionario();
-        f2.setId(proximoId++);
-        f2.setNome("Bruno Costa (Exemplo)");
-        f2.setCpf("222.222.222-22");
-        f2.setCargo("Instrutor");
-        f2.setDataAdmissao("10/01/2023");
-        f2.setDataNascimento("20/11/1995");
-        f2.setSenha("abc");
-        f2.setCaminhoFoto(null); // Sem foto
-        bancoDeDadosSimulado.add(f2);
-    }
-
-    public List<Funcionario> listarTodos() {
-        return new ArrayList<>(bancoDeDadosSimulado); // Retorna uma cópia
-    }
-
-    public void cadastrar(Funcionario f) {
-        f.setId(proximoId++);
-        bancoDeDadosSimulado.add(f);
-    }
-
-    public void atualizar(Funcionario f) {
-        for (int i = 0; i < bancoDeDadosSimulado.size(); i++) {
-            if (bancoDeDadosSimulado.get(i).getId() == f.getId()) {
-                bancoDeDadosSimulado.set(i, f);
-                return;
-            }
-        }
-    }
-
-    public void remover(int id) {
-        bancoDeDadosSimulado.removeIf(f -> f.getId() == id);
     }
 }
