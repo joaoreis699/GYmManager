@@ -9,11 +9,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class ConexaoDB {
+public class ConexaoDAO {
     // Coloque aqui os dados do seu banco de dados
     private static final String URL = "jdbc:mysql://localhost:3306/gym_manager_db";
     private static final String USUARIO = "root"; // seu usuário
-    private static final String SENHA = "28072000"; // sua senha
+    private static final String SENHA = ""; // sua senha
 
     public static Connection getConexao() {
         try {

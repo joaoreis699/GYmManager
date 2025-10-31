@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package br.com.gymmanager.model;
-import java.time.LocalDate;
+//import java.time.LocalDate;
 
 /**
  * Classe Abstrata que serve como base para Aluno, Funcionario, etc.
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public abstract class Pessoa {
 
     private String nome;
-    private LocalDate dataNascimento;
+    private String dataNascimento;
     private String cpf;
     private String telefone;
     private String email;
@@ -20,9 +20,16 @@ public abstract class Pessoa {
     // Construtor vazio (boa prática ter um)
     public Pessoa() {
     }
+    
+    public Pessoa(String nome, String dataNascimento, String cpf) {
+        this.nome = nome;
+        this.dataNascimento = dataNascimento;
+        this.cpf = cpf;
+    }
+    
 
     // Construtor com todos os campos para facilitar a criação de objetos
-    public Pessoa(String nome, LocalDate dataNascimento, String cpf, String telefone, String email) {
+    public Pessoa(String nome, String dataNascimento, String cpf, String telefone, String email) {
         this.nome = nome;
         this.dataNascimento = dataNascimento;
         this.cpf = cpf;
@@ -41,11 +48,11 @@ public abstract class Pessoa {
         this.nome = nome;
     }
 
-    public LocalDate getDataNascimento() {
+    public String getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(LocalDate dataNascimento) {
+    public void setDataNascimento(String dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 
