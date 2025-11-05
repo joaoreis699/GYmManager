@@ -5,10 +5,6 @@
 package br.com.gymmanager.model;
 //import java.time.LocalDate;
 
-/**
- * Classe Abstrata que serve como base para Aluno, Funcionario, etc.
- * Contém os atributos comuns a todas as pessoas no sistema.
- */
 public abstract class Pessoa {
 
     private String nome;
@@ -17,7 +13,6 @@ public abstract class Pessoa {
     private String telefone;
     private String email;
 
-    // Construtor vazio (boa prática ter um)
     public Pessoa() {
     }
     
@@ -28,7 +23,6 @@ public abstract class Pessoa {
     }
     
 
-    // Construtor com todos os campos para facilitar a criação de objetos
     public Pessoa(String nome, String dataNascimento, String cpf, String telefone, String email) {
         this.nome = nome;
         this.dataNascimento = dataNascimento;
@@ -36,9 +30,6 @@ public abstract class Pessoa {
         this.telefone = telefone;
         this.email = email;
     }
-
-    // --- Getters e Setters ---
-    // Métodos para acessar e modificar os atributos de forma controlada
 
     public String getNome() {
         return nome;

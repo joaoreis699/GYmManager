@@ -17,25 +17,10 @@ import java.util.List;
 import br.com.gymmanager.model.Funcionario;
 import br.com.gymmanager.dao.FuncionarioDAO;
 
-// --- Imports das suas outras classes (ajuste o pacote se necessário) ---
-// (Você precisará criar estas classes ou importá-las do pacote correto)
-// import br.com.gymmanager.model.Funcionario;
-// import br.com.gymmanager.dao.FuncionarioDAO;
 
+public class TelaGestaoFuncionario extends JFrame {
 
-/**
- * Tela de Gerenciamento de Funcionários (CRUD).
- * Nome do arquivo: TelaGestaoFuncionario.java
- *
- * * v4.0 - Versão Final com Look and Feel "Nimbus"
- * - Corrigido Look and Feel no 'main' para usar "Nimbus".
- * - Criado 'estilizarBotaoPadrao' (branco com hover azul)
- * - Aplicado estilo aos botões 'Voltar', 'Selecionar' e 'Cancelar'.
- * - Corrigido 'estilizarBotaoRemover' para forçar a cor.
- */
-public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUALIZADO
-
-    // --- CONSTANTES DE ESTILO ---
+    // CONSTANTES DE ESTILO ---
     private static final Color COR_FUNDO = new Color(240, 242, 245);
     private static final Color COR_AZUL_PRINCIPAL = new Color(30, 90, 200);
     private static final Color COR_BRANCO = Color.WHITE;
@@ -56,7 +41,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
             new EmptyBorder(5, 5, 5, 5)
     );
 
-    // --- Componentes do Lado Direito (Gerenciador de Painéis) ---
+    // Componentes do Lado Direito (Gerenciador de Painéis)
     private CardLayout layoutLadoDireito;
     private JPanel painelLadoDireito;
     private JPanel painelFormulario;
@@ -64,7 +49,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
     private static final String PAINEL_FORM = "FORMULARIO";
     private static final String PAINEL_PLACEHOLDER = "PLACEHOLDER";
 
-    // --- Componentes do Formulário ---
+    // Componentes do Formulário
     private JLabel labelTituloForm;
     private JTextField campoNome, campoDataNasc, campoDataAdmissao;
     private JFormattedTextField campoCpf;
@@ -74,17 +59,17 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
     private JLabel labelFotoPreview;
         private String caminhoDaFotoSelecionada = null;
 
-        // --- Componentes da Lista (Esquerda) ---
+        // Componentes da Lista (Esquerda)
         private JPanel painelListaCards;
         private JScrollPane scrollLista;
 
-        // --- Controle de Estado ---
+        // Controle de Estado
         private Funcionario funcionarioSelecionadoParaEdicao = null;
         private FuncionarioDAO funcionarioDAO;
 
         private JFrame abrirTelaPrincipal;
 
-        public TelaGestaoFuncionario(JFrame telaPrincipal) { // <--- NOME DA CLASSE ATUALIZADO
+        public TelaGestaoFuncionario(JFrame telaPrincipal) {
             this.abrirTelaPrincipal = telaPrincipal;
 
             setTitle("GymManager - Gestão de Funcionários");
@@ -100,29 +85,20 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
             painelFundo.setBorder(new EmptyBorder(20, 20, 20, 20));
             setContentPane(painelFundo);
 
-            // --- 1. CABEÇALHO (HEADER) ---
             painelFundo.add(criarHeader(), BorderLayout.NORTH);
 
-            // --- 2. PAINEL LADO ESQUERDO (LISTA E BOTÃO ADICIONAR) ---
             painelFundo.add(criarPainelLadoEsquerdo(), BorderLayout.CENTER);
 
-            // --- 3. PAINEL LADO DIREITO (FORMULÁRIO DINÂMICO) ---
             painelFundo.add(criarPainelLadoDireito(), BorderLayout.EAST);
 
-            // --- 4. RODAPÉ ---
             JLabel labelRodape = new JLabel("© 2025 GymManager — Todos os direitos reservados", SwingConstants.CENTER);
             labelRodape.setFont(new Font("Segoe UI", Font.PLAIN, 12));
             labelRodape.setForeground(COR_TEXTO_PADRAO);
             painelFundo.add(labelRodape, BorderLayout.SOUTH);
 
-            // --- Ações Iniciais ---
             atualizarListaFuncionarios();
         }
 
-        /**
-         * Cria o cabeçalho padrão.
-         * ATUALIZADO: Botão 'Voltar' usa o novo estilo 'estilizarBotaoPadrao'.
-         */
         private JPanel criarHeader() {
             JPanel painelHeader = new JPanel(new BorderLayout());
             painelHeader.setBackground(COR_FUNDO);
@@ -157,16 +133,10 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
                 abrirTelaPrincipal.setVisible(true);
                 abrirTelaPrincipal.toFront();
                 
-                SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    dispose(); // Joga esta janela (Gestão) no lixo
-                }
-            });
-            } 
+                dispose();
+            }
         });
         
-        // --- ESTILO CORRIGIDO ---
         estilizarBotaoVoltar(botaoVoltar); 
         
         botaoVoltar.addActionListener(e -> dispose());
@@ -175,10 +145,6 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         return painelHeader;
     }
 
-    /**
-     * Cria o painel da esquerda (Botão Adicionar + Lista).
-     * ATUALIZADO: Fundo do Viewport do Scroll corrigido.
-     */
     private JPanel criarPainelLadoEsquerdo() {
         JPanel painelCentral = new JPanel(new BorderLayout(0, 10));
         painelCentral.setOpaque(false);
@@ -200,7 +166,6 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
 
         scrollLista = new JScrollPane(wrapperPainelLista);
         
-        // --- CORREÇÃO FUNDO PRETO ---
         scrollLista.getViewport().setBackground(COR_FUNDO); 
         
         scrollLista.setBorder(BorderFactory.createEmptyBorder());
@@ -217,19 +182,14 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         return painelCentral;
     }
 
-    /**
-     * Cria o painel da direita com CardLayout (Placeholder e Formulário).
-     */
     private JPanel criarPainelLadoDireito() {
         layoutLadoDireito = new CardLayout();
         painelLadoDireito = new JPanel(layoutLadoDireito);
         painelLadoDireito.setOpaque(false);
-        painelLadoDireito.setPreferredSize(new Dimension(450, 0)); // Largura fixa
+        painelLadoDireito.setPreferredSize(new Dimension(450, 0)); 
 
-        // 1. Cria o Painel de Formulário
         criarPainelFormulario();
 
-        // 2. Cria o Painel Placeholder (estado inicial)
         painelPlaceholder = new JPanel(new GridBagLayout());
         painelPlaceholder.setBackground(COR_FUNDO);
         JLabel labelPlaceholder = new JLabel("<html><center>Selecione um funcionário à esquerda para ver os detalhes<br>ou<br>Clique em '+ Adicionar Novo Funcionário' para cadastrar.</center></html>");
@@ -238,20 +198,16 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         labelPlaceholder.setHorizontalAlignment(SwingConstants.CENTER);
         painelPlaceholder.add(labelPlaceholder);
 
-        // 3. Adiciona os dois painéis ao CardLayout
+        // Adiciona os dois painéis ao CardLayout
         painelLadoDireito.add(painelPlaceholder, PAINEL_PLACEHOLDER);
         painelLadoDireito.add(painelFormulario, PAINEL_FORM);
 
-        // 4. Define o Placeholder como o painel inicial
+        // Define o Placeholder como o painel inicial
         layoutLadoDireito.show(painelLadoDireito, PAINEL_PLACEHOLDER);
 
         return painelLadoDireito;
     }
 
-    /**
-     * Apenas CRIA o painelFormulario.
-     * ATUALIZADO: Botão 'Selecionar' usa o novo estilo 'estilizarBotaoPadrao'.
-     */
     private void criarPainelFormulario() {
         painelFormulario = new JPanel(new BorderLayout(10, 10));
         painelFormulario.setBackground(COR_BRANCO);
@@ -275,7 +231,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // --- LINHA 0: Foto ---
+        // LINHA 0: Foto
         gbc.gridx = 0; gbc.gridy = 0;
         JLabel labelFoto = new JLabel("Foto:");
         estilizarLabel(labelFoto);
@@ -292,13 +248,12 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         gbc.gridx = 2; gbc.gridy = 0;
         botaoSelecionarFoto = new JButton("Selecionar...");
         
-        // --- ESTILO CORRIGIDO ---
         estilizarBotaoPadrao(botaoSelecionarFoto); 
         
         botaoSelecionarFoto.addActionListener(e -> selecionarFoto());
         camposPanel.add(botaoSelecionarFoto, gbc);
 
-        // --- LINHA 1: Nome ---
+        // LINHA 1: Nome
         gbc.gridx = 0; gbc.gridy = 1;
         JLabel labelNome = new JLabel("Nome:");
         estilizarLabel(labelNome);
@@ -310,7 +265,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         camposPanel.add(campoNome, gbc);
         gbc.gridwidth = 1;
 
-        // --- LINHA 2: CPF ---
+        // LINHA 2: CPF 
         gbc.gridx = 0; gbc.gridy = 2;
         JLabel labelCpf = new JLabel("CPF (Login):");
         estilizarLabel(labelCpf);
@@ -323,7 +278,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         camposPanel.add(campoCpf, gbc);
         gbc.gridwidth = 1;
 
-        // --- LINHA 3: Data Nasc. ---
+        // LINHA 3: Data Nasc
         gbc.gridx = 0; gbc.gridy = 3;
         JLabel labelNasc = new JLabel("Data Nasc:");
         estilizarLabel(labelNasc);
@@ -336,7 +291,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         camposPanel.add(campoDataNasc, gbc);
         gbc.gridwidth = 1;
 
-        // --- LINHA 4: Cargo ---
+        // LINHA 4: Cargo
         gbc.gridx = 0; gbc.gridy = 4;
         JLabel labelCargo = new JLabel("Cargo:");
         estilizarLabel(labelCargo);
@@ -351,7 +306,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         camposPanel.add(comboCargo, gbc);
         gbc.gridwidth = 1;
 
-        // --- LINHA 5: Data Admissão ---
+        // LINHA 5: Data Admissão
         gbc.gridx = 0; gbc.gridy = 5;
         JLabel labelAdm = new JLabel("Admissão:");
         estilizarLabel(labelAdm);
@@ -364,7 +319,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         camposPanel.add(campoDataAdmissao, gbc);
         gbc.gridwidth = 1;
 
-        // --- LINHA 6: Senha ---
+        // LINHA 6: Senha
         gbc.gridx = 0; gbc.gridy = 6;
         JLabel labelSenha = new JLabel("Senha:");
         estilizarLabel(labelSenha);
@@ -376,7 +331,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         camposPanel.add(campoSenha, gbc);
         gbc.gridwidth = 1;
 
-        // --- LINHA 7: Confirma Senha ---
+        // LINHA 7: Confirma Senha
         gbc.gridx = 0; gbc.gridy = 7;
         JLabel labelConf = new JLabel("Confirmar:");
         estilizarLabel(labelConf);
@@ -412,7 +367,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         painelFormulario.add(painelBotoesForm, BorderLayout.SOUTH);
     }
 
-    // --- Helpers de Estilização (Correção Dark Mode) ---
+    // Helpers de Estilização (Correção Dark Mode)
 
     private void estilizarLabel(JLabel label) {
         label.setFont(FONTE_LABEL_FORM);
@@ -436,42 +391,29 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         botao.setBorderPainted(false);
     }
     
-    /**
-     * NOVO MÉTODO: Estilo exclusivo para o botão "Voltar".
-     * (Design "Link" - sem fundo, sem borda, sublinhado no hover)
-     */
-    /**
-     * NOVO MÉTODO: Estilo exclusivo para o botão "Voltar".
-     * (Design "Flat/Flutuante" - cor cinza escuro, sem borda)
-     */
     private void estilizarBotaoVoltar(JButton botao) {
-        // Define a cor "preta bem clara" (cinza escuro)
-        Color corFundoVoltar = new Color(80, 80, 80); // <= COR_TEXTO_PADRAO
-        // Define uma cor de hover (um cinza um pouco mais claro)
+        Color corFundoVoltar = new Color(80, 80, 80); 
+        
         Color corHoverVoltar = new Color(110, 110, 110); 
 
         botao.setFont(new Font("Segoe UI", Font.BOLD, 12));
         botao.setBackground(corFundoVoltar);
-        botao.setForeground(Color.WHITE); // Texto branco para contrastar
+        botao.setForeground(Color.WHITE); 
 
-        // --- Remove a borda e força o estilo "flat" ---
-        botao.setOpaque(true); // Essencial para o setBackground funcionar
-        botao.setBorderPainted(false); // Remove a borda
-        botao.setFocusPainted(false); // Remove a borda de foco
+        botao.setOpaque(true); 
+        botao.setBorderPainted(false); 
+        botao.setFocusPainted(false); 
         
-        // Adiciona um padding (espaçamento interno) para dar tamanho
-        botao.setBorder(new EmptyBorder(8, 15, 8, 15)); // (topo/baixo, esq/dir)
+        botao.setBorder(new EmptyBorder(8, 15, 8, 15)); 
         
         botao.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        // Remove listeners de hover antigos
         for (java.awt.event.MouseListener ml : botao.getMouseListeners()) {
             if (ml instanceof java.awt.event.MouseAdapter) {
                 botao.removeMouseListener(ml);
             }
         }
 
-        // Efeito Hover (Muda para a cor mais clara)
         botao.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -484,31 +426,24 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         });
     }
     
-    /**
-     * NOVO MÉTODO DE ESTILO: Padrão (Branco/Azul Hover)
-     * Usado para 'Voltar', 'Selecionar' e 'Cancelar'.
-     */
     private void estilizarBotaoPadrao(JButton botao) {
         botao.setBackground(COR_BRANCO);
         botao.setForeground(COR_TEXTO_PADRAO);
         botao.setFocusPainted(false);
         botao.setOpaque(true); // Força a cor de fundo
 
-        // Borda padrão igual da TelaPrincipal
         botao.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(200, 200, 200)),
-            new EmptyBorder(5, 10, 5, 10) // Padding
+            new EmptyBorder(5, 10, 5, 10) 
         ));
-        botao.setBorderPainted(true); // Garante que a borda seja pintada
+        botao.setBorderPainted(true); 
 
-        // Remove listeners antigos para evitar duplicação
         for (java.awt.event.MouseListener ml : botao.getMouseListeners()) {
             if (ml instanceof java.awt.event.MouseAdapter) {
                 botao.removeMouseListener(ml);
             }
         }
 
-        // Efeito Hover
         botao.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -522,21 +457,15 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
             }
         });
     }
-    
-    /**
-     * ATUALIZADO: Botão 'Remover' (Vermelho)
-     */
+
     private void estilizarBotaoRemover(JButton botao) {
         botao.setBackground(COR_VERMELHO_REMOVER);
         botao.setForeground(Color.WHITE);
         botao.setFocusPainted(false);
         
-        // --- ADIÇÃO PARA CORRIGIR COR PRETA (DARK MODE) ---
         botao.setOpaque(true);
         botao.setBorderPainted(false);
-        // --- FIM DA ADIÇÃO ---
         
-        // Remove listeners de hover do estilo padrão
         for (java.awt.event.MouseListener ml : botao.getMouseListeners()) {
             if (ml instanceof java.awt.event.MouseAdapter) {
                 botao.removeMouseListener(ml);
@@ -544,13 +473,9 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         }
     }
 
-
-    /**
-     * Carrega a lista de funcionários do DAO e recria os cards.
-     */
     private void atualizarListaFuncionarios() {
         painelListaCards.removeAll();
-        // Você precisa ter a classe FuncionarioDAO importada ou no mesmo pacote
+        
         List<Funcionario> funcionarios = funcionarioDAO.listarTodos();
 
         for (Funcionario f : funcionarios) {
@@ -562,10 +487,6 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         painelListaCards.repaint();
     }
 
-    /**
-     * Método Fábrica para criar um card de funcionário (SEM botões).
-     * Adiciona um MouseListener para ativar o modo de edição.
-     */
     private JPanel criarCardFuncionario(Funcionario func) {
         JPanel card = new JPanel(new BorderLayout(15, 15));
         card.setBackground(COR_BRANCO);
@@ -580,13 +501,12 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         card.setPreferredSize(cardSize);
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // --- LADO ESQUERDO: FOTO ---
+        // LADO ESQUERDO: FOTO
         JLabel labelFoto = new JLabel();
         labelFoto.setPreferredSize(new Dimension(96, 96));
         labelFoto.setHorizontalAlignment(SwingConstants.CENTER);
         labelFoto.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         try {
-            // Garante que o caminho da foto não seja nulo
             if (func.getCaminhoFoto() != null && !func.getCaminhoFoto().isEmpty()) {
                 ImageIcon icon = new ImageIcon(func.getCaminhoFoto());
                 Image img = icon.getImage().getScaledInstance(96, 96, Image.SCALE_SMOOTH);
@@ -599,7 +519,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         }
         card.add(labelFoto, BorderLayout.WEST);
 
-        // --- CENTRO: INFORMAÇÕES ---
+        // CENTRO: INFORMAÇÕES 
         JPanel painelInfo = new JPanel();
         painelInfo.setOpaque(false);
         painelInfo.setLayout(new BoxLayout(painelInfo, BoxLayout.Y_AXIS));
@@ -630,19 +550,19 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
 
         card.add(painelInfo, BorderLayout.CENTER);
 
-        // --- LÓGICA DE CLIQUE NO CARD ---
+        // LÓGICA DE CLIQUE NO CARD
         card.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 exibirModoEdicao(func);
             }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 card.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createMatteBorder(2, 2, 2, 2, COR_AZUL_PRINCIPAL), // Borda azul
+                        BorderFactory.createMatteBorder(2, 2, 2, 2, COR_AZUL_PRINCIPAL),
                         new EmptyBorder(9, 14, 9, 14)
                 ));
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                card.setBorder(BorderFactory.createCompoundBorder( // Borda padrão
+                card.setBorder(BorderFactory.createCompoundBorder( 
                         BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(220, 220, 220)),
                         new EmptyBorder(10, 15, 10, 15)
                 ));
@@ -652,24 +572,16 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         return card;
     }
 
-    // --- MÉTODOS DE CONTROLE DE FLUXO DA UI ---
-
-    /**
-     * Alterna para o painel de formulário em modo de ADIÇÃO.
-     * ATUALIZADO: 'Cancelar' usa o novo estilo 'estilizarBotaoPadrao'.
-     */
     private void exibirModoAdicao() {
         funcionarioSelecionadoParaEdicao = null;
         labelTituloForm.setText("Adicionar Novo Funcionário");
         limparCamposFormulario();
         
-        // Configura botões para "Salvar" e "Cancelar"
         botaoAcaoPrimaria.setText("Salvar");
         estilizarBotaoPrimario(botaoAcaoPrimaria);
         
         botaoAcaoSecundaria.setText("Cancelar");
         
-        // --- ESTILO CORRIGIDO ---
         estilizarBotaoPadrao(botaoAcaoSecundaria);
         
         removerActionListeners(botaoAcaoPrimaria);
@@ -681,22 +593,16 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         layoutLadoDireito.show(painelLadoDireito, PAINEL_FORM);
     }
 
-    /**
-     * Alterna para o painel de formulário em modo de EDIÇÃO.
-     * ATUALIZADO: 'Remover' usa o estilo 'estilizarBotaoRemover'.
-     */
     private void exibirModoEdicao(Funcionario func) {
         funcionarioSelecionadoParaEdicao = func;
         labelTituloForm.setText("Editar: " + func.getNome());
         preencherCamposFormulario(func);
         
-        // Configura botões para "Atualizar" e "Remover"
         botaoAcaoPrimaria.setText("Atualizar");
         estilizarBotaoPrimario(botaoAcaoPrimaria);
         
         botaoAcaoSecundaria.setText("Remover");
         
-        // --- ESTILO CORRIGIDO ---
         estilizarBotaoRemover(botaoAcaoSecundaria);
         
         removerActionListeners(botaoAcaoPrimaria);
@@ -708,18 +614,12 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         layoutLadoDireito.show(painelLadoDireito, PAINEL_FORM);
     }
     
-    /**
-     * Helper para limpar todos os ActionListeners de um botão.
-     */
     private void removerActionListeners(JButton botao) {
         for (ActionListener al : botao.getActionListeners()) {
             botao.removeActionListener(al);
         }
     }
 
-    /**
-     * Ação do botão "Selecionar Foto...".
-     */
     private void selecionarFoto() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Selecione uma foto");
@@ -746,9 +646,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         }
     }
 
-    /**
-     * Ação do botão "Salvar" ou "Atualizar".
-     */
+
     private void salvarFuncionario() {
         // 1. Coletar Dados
         String nome = campoNome.getText();
@@ -759,13 +657,11 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         String senha = new String(campoSenha.getPassword());
         String confirmaSenha = new String(campoConfirmaSenha.getPassword());
         
-        // 2. Validação
         if (nome.isEmpty() || cpf.isEmpty() || dataNasc.isEmpty() || dataAdmissao.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Preencha todos os campos obrigatórios.", "Erro", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Se for um novo funcionário OU se a senha foi alterada (não está vazia)
         if (funcionarioSelecionadoParaEdicao == null || !senha.isEmpty()) {
              if (senha.isEmpty() || !senha.equals(confirmaSenha)) {
                 JOptionPane.showMessageDialog(this, "As senhas estão vazias ou não conferem.", "Erro de Senha", JOptionPane.WARNING_MESSAGE);
@@ -776,35 +672,32 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         boolean sucesso = false;
      
         cpf = cpf.replaceAll("[.-]", "");
-        // 3. Salvar (Criar ou Editar)
+        
         if (funcionarioSelecionadoParaEdicao == null) {
-            // --- CRIAR NOVO ---
+            
             Funcionario novoFunc = new Funcionario(nome, cpf, dataNasc, 0, cargo, dataAdmissao, senha, caminhoDaFotoSelecionada);
-            novoFunc.setId(0); // DAO simula auto-incremento
+            novoFunc.setId(0); 
             novoFunc.setNome(nome);
             novoFunc.setCpf(cpf);
             novoFunc.setDataNascimento(dataNasc);
             novoFunc.setCargo(cargo);
             novoFunc.setDataAdmissao(dataAdmissao);
-            novoFunc.setSenha(senha); // Em um sistema real, use Hash!
+            novoFunc.setSenha(senha); 
             novoFunc.setCaminhoFoto(caminhoDaFotoSelecionada);
 
             sucesso = funcionarioDAO.cadastrar(novoFunc);
 
         } else {
-            // --- EDITAR EXISTENTE ---
             funcionarioSelecionadoParaEdicao.setNome(nome);
             funcionarioSelecionadoParaEdicao.setCpf(cpf);
             funcionarioSelecionadoParaEdicao.setDataNascimento(dataNasc);
             funcionarioSelecionadoParaEdicao.setCargo(cargo);
             funcionarioSelecionadoParaEdicao.setDataAdmissao(dataAdmissao);
             
-            // Só atualiza a senha se o campo não estiver vazio
             if (!senha.isEmpty()) {
                 funcionarioSelecionadoParaEdicao.setSenha(senha);
             }
             
-            // Só atualiza a foto se uma nova foi selecionada
             if (caminhoDaFotoSelecionada != null) {
                 funcionarioSelecionadoParaEdicao.setCaminhoFoto(caminhoDaFotoSelecionada);
             }
@@ -812,7 +705,6 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
             sucesso = funcionarioDAO.atualizar(funcionarioSelecionadoParaEdicao);
         }
 
-        // 4. Limpar e Atualizar
         if(sucesso) {
             if(funcionarioSelecionadoParaEdicao == null) {
                 JOptionPane.showMessageDialog(this, "Funcionário cadastrado com sucesso!");
@@ -825,9 +717,6 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         }
     }
 
-    /**
-     * Ação do botão "Remover" do formulário.
-     */
     private void removerFuncionario(Funcionario func) {
         int resposta = JOptionPane.showConfirmDialog(
             this, 
@@ -844,10 +733,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
             atualizarListaFuncionarios();
         }
     }
-    
-    /**
-     * Preenche o formulário com dados de um funcionário (Modo Edição).
-     */
+
     private void preencherCamposFormulario(Funcionario func) {
         campoNome.setText(func.getNome());
         campoCpf.setText(func.getCpf());
@@ -855,7 +741,6 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         campoDataAdmissao.setText(func.getDataAdmissao());
         comboCargo.setSelectedItem(func.getCargo());
         
-        // Carrega a senha para ser modificada
         campoSenha.setText(func.getSenha());
         campoConfirmaSenha.setText(func.getSenha());
         
@@ -876,9 +761,6 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         }
     }
 
-    /**
-     * Limpa os campos do formulário (Modo Adição).
-     */
     private void limparCamposFormulario() {
         campoNome.setText("");
         campoCpf.setText("");
@@ -892,20 +774,12 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         labelFotoPreview.setText("Sem Foto");
         caminhoDaFotoSelecionada = null;
     }
-    
-    /**
-     * Retorna a UI para o estado inicial (painel cinza).
-     */
+
     private void voltarAoPlaceholder() {
         layoutLadoDireito.show(painelLadoDireito, PAINEL_PLACEHOLDER);
         funcionarioSelecionadoParaEdicao = null;
     }
 
-
-    /**
-     * Método main para testar esta tela isoladamente.
-     * *** VERSÃO CORRIGIDA COM LOOK AND FEEL "NIMBUS" ***
-     */
     public static void main(String[] args) {
         try {
             // Tenta definir o Look and Feel "Nimbus"
@@ -930,7 +804,7 @@ public class TelaGestaoFuncionario extends JFrame { // <--- NOME DA CLASSE ATUAL
         UIManager.put("PasswordField.background", Color.WHITE);
         
         SwingUtilities.invokeLater(() -> {
-            new TelaGestaoFuncionario(null).setVisible(true); // <--- NOME DA CLASSE ATUALIZADO
+            new TelaGestaoFuncionario(null).setVisible(true);
         });
     }
 }

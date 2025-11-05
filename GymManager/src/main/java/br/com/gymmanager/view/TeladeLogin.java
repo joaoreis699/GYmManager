@@ -35,10 +35,7 @@ public class TeladeLogin extends JFrame {
         painel.setLayout(null);
         add(painel);
 
-        // Logo
-        // O MAIS RECOMENDADO
-        // O caminho deve ser a estrutura de pacotes que leva ao arquivo.
-        
+        // LOGO!!
         ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Imagens/logo.png"));
         Image logoRedimensionada = logoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
         labelLogo = new JLabel(new ImageIcon(logoRedimensionada));
@@ -89,14 +86,12 @@ public class TeladeLogin extends JFrame {
         botaoEntrar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Pega os dados digitados pelo usuário
                 String cpf = campoCpf.getText();
                 String senha = new String(campoSenha.getPassword());
 
-                // Verifica se os campos não estão vazios
                 if (cpf.isEmpty() || senha.isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Por favor, preencha CPF e Senha.", "Campos Vazios", JOptionPane.WARNING_MESSAGE);
-                    return; // Para a execução
+                    return;
                 }
                 FuncionarioDAO funcionarioDAO = new FuncionarioDAO();
 

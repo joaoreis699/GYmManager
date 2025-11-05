@@ -31,13 +31,13 @@ public class TelaPrincipal extends JFrame {
         setMinimumSize(new Dimension(1024, 768));
         setLocationRelativeTo(null);
         
-        // Painel principal que cobre toda a janela
+        // Painel principal
         JPanel painelFundo = new JPanel(new BorderLayout(20, 20));
         painelFundo.setBackground(COR_FUNDO);
         painelFundo.setBorder(new EmptyBorder(20, 20, 20, 20));
         setContentPane(painelFundo);
 
-        // --- 1. CABEÇALHO (HEADER) ---
+        // CABEÇALHO (HEADER) ---
         JPanel painelHeader = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         painelHeader.setBackground(COR_FUNDO);
 
@@ -53,18 +53,18 @@ public class TelaPrincipal extends JFrame {
         painelHeader.add(labelTitulo);
         painelFundo.add(painelHeader, BorderLayout.NORTH);
 
-        // --- 2. PAINEL DE AÇÕES E KPIS (CENTRO) ---
+        // PAINEL DE AÇÕES E KPIS (CENTRO)
         JPanel painelDashboard = new JPanel(new BorderLayout(0, 20));
         painelDashboard.setBackground(COR_FUNDO);
         
-        // --- 2.1 PAINEL DOS CARDS DE KPI (TOPO DO DASHBOARD) ---
+        // PAINEL DOS CARDS DE KPI (TOPO DO DASHBOARD) ---
         JPanel painelKpi = new JPanel(new GridBagLayout());
         painelKpi.setBackground(COR_FUNDO);
         GridBagConstraints gbcKpi = new GridBagConstraints();
         gbcKpi.insets = new Insets(0, 10, 0, 10);
         gbcKpi.fill = GridBagConstraints.BOTH;
 
-        // ** Card Principal (Alunos Ativos) - Ocupa 2 colunas **
+        //Card Principal (Alunos Ativos)
         gbcKpi.gridx = 0;
         gbcKpi.gridy = 0;
         gbcKpi.gridwidth = 2; // Ocupa o dobro do espaço
@@ -72,7 +72,7 @@ public class TelaPrincipal extends JFrame {
         JPanel cardAlunos = criarCardKpi("Alunos Ativos", "142", "/Imagens/icon_alunos.png");
         painelKpi.add(cardAlunos, gbcKpi);
         
-        // ** Card Secundário 1 (Pagamentos) **
+        // Card Secundário 1 (Pagamentos)
         gbcKpi.gridx = 2;
         gbcKpi.gridy = 0;
         gbcKpi.gridwidth = 1; // Volta ao normal
@@ -80,7 +80,7 @@ public class TelaPrincipal extends JFrame {
         JPanel cardPagamentos = criarCardKpi("Pagamentos Pendentes", "15", "/Imagens/icon_pagamento.png");
         painelKpi.add(cardPagamentos, gbcKpi);
 
-        // ** Card Secundário 2 (Check-ins) **
+        // Card Secundário 2 (Check-ins) 
         gbcKpi.gridx = 3;
         gbcKpi.gridy = 0;
         JPanel cardCheckins = criarCardKpi("Check-ins Hoje", "48", "/Imagens/icon_checkin.png");
@@ -88,7 +88,7 @@ public class TelaPrincipal extends JFrame {
         
         painelDashboard.add(painelKpi, BorderLayout.NORTH);
 
-        // --- 2.2 PAINEL DOS BOTÕES DE AÇÃO (CENTRO DO DASHBOARD) ---
+        // PAINEL DOS BOTÕES DE AÇÃO (CENTRO DO DASHBOARD) ---
         JPanel painelAcoes = new JPanel(new GridLayout(2, 3, 20, 20)); // 2 linhas, 3 colunas, com espaçamento
         painelAcoes.setBackground(COR_FUNDO);
         painelAcoes.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -120,16 +120,14 @@ public class TelaPrincipal extends JFrame {
         
         painelFundo.add(painelDashboard, BorderLayout.CENTER);
 
-        // --- 3. RODAPÉ ---
+        // RODAPÉ
         JLabel labelRodape = new JLabel("© 2025 GymManager — Todos os direitos reservados", SwingConstants.CENTER);
         labelRodape.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         labelRodape.setForeground(COR_TEXTO_PADRAO);
         painelFundo.add(labelRodape, BorderLayout.SOUTH);
     }
     
-    /**
-     * Método fábrica para criar os cards de KPI.
-     */
+        // Esse método é uma fábrica de gerar cards!
     private JPanel criarCardKpi(String titulo, String valor, String caminhoIcone) {
         JPanel card = new JPanel(new BorderLayout(10, 0));
         card.setBackground(COR_BRANCO);
@@ -169,9 +167,7 @@ public class TelaPrincipal extends JFrame {
         return card;
     }
 
-    /**
-     * Método fábrica para criar os botões de ação do dashboard.
-     */
+   // Método de fábrica para criar os botoes
     private JButton criarBotaoAcao(String texto, String caminhoIcone) {
         JButton botao = new JButton(texto);
         botao.setFont(FONTE_BOTAO_ACAO);
@@ -216,7 +212,6 @@ public class TelaPrincipal extends JFrame {
      
 
     public static void main(String[] args) {
-        // Define um Look and Feel mais moderno, se disponível
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
