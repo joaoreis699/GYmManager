@@ -9,6 +9,10 @@ package br.com.gymmanager.view;
  * @author joaoreis699
  */
 
+import br.com.gymmanager.dao.PagamentoDAO;
+import br.com.gymmanager.model.Pagamento;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import br.com.gymmanager.dao.AlunoDAO;
 import br.com.gymmanager.dao.PlanoDAO;
 import br.com.gymmanager.model.Aluno;
@@ -305,7 +309,7 @@ public class TelaGestaoAlunos extends JDialog {
         // 1. Coletar Dados
         String nome = campoNome.getText();
         String cpfFormatado = campoCpf.getText();
-        String cpfLimpo = cpfFormatado.replaceAll("[^0-9]", ""); // Só números
+        String cpfLimpo = cpfFormatado.replaceAll("[^0-9]", ""); 
         String dataNasc = campoDataNasc.getText();
         String telefone = campoTelefone.getText();
         String email = campoEmail.getText();
@@ -323,7 +327,7 @@ public class TelaGestaoAlunos extends JDialog {
             return;
         }
 
-        // 3. LÓGICA DA SENHA (4 últimos dígitos do CPF)
+        // 3. Senha Automática
         String senhaGerada = "";
         if (cpfLimpo.length() >= 4) {
             senhaGerada = cpfLimpo.substring(cpfLimpo.length() - 4);
@@ -332,9 +336,10 @@ public class TelaGestaoAlunos extends JDialog {
         }
 
         boolean sucesso = false;
+        boolean novoCadastro = (alunoSelecionadoParaEdicao == null); // Marca se é novo
 
-        if (alunoSelecionadoParaEdicao == null) {
-            // CADASTRO
+        if (novoCadastro) {
+            // --- CADASTRO ---
             Aluno novoAluno = new Aluno();
             novoAluno.setNome(nome);
             novoAluno.setCpf(cpfLimpo);
@@ -344,19 +349,106 @@ public class TelaGestaoAlunos extends JDialog {
             novoAluno.setPlano(planoSelecionado);
             novoAluno.setStatus(status);
             novoAluno.setDataMatricula(dataMatricula);
-            novoAluno.setSenha(senhaGerada); // Senha Automática
+            novoAluno.setSenha(senhaGerada);
             novoAluno.setCaminhoFoto(caminhoDaFotoSelecionada);
 
             sucesso = alunoDAO.cadastrar(novoAluno);
         } else {
-            // EDIÇÃO (Implementar no AlunoDAO depois)
-            JOptionPane.showMessageDialog(this, "Edição ainda não implementada no DAO.");
+            // --- ATUALIZAÇÃO ---
+            Aluno alunoEditado = alunoSelecionadoParaEdicao;
+            alunoEditado.setNome(nome);
+            alunoEditado.setCpf(cpfLimpo);
+            alunoEditado.setDataNascimento(dataNasc);
+            alunoEditado.setTelefone(telefone);
+            alunoEditado.setEmail(email);
+            alunoEditado.setPlano(planoSelecionado);
+            alunoEditado.setStatus(status);
+            alunoEditado.setDataMatricula(dataMatricula);
+            if (caminhoDaFotoSelecionada != null) {
+                alunoEditado.setCaminhoFoto(caminhoDaFotoSelecionada);
+            }
+            sucesso = alunoDAO.atualizar(alunoEditado);
         }
 
         if (sucesso) {
-            JOptionPane.showMessageDialog(this, "Aluno salvo com sucesso!\nSenha inicial: " + senhaGerada);
+            String mensagem = "Dados salvos com sucesso!";
+          
+            if (novoCadastro) {
+                System.out.println("DEBUG: Iniciando geração de mensalidade...");
+                try {
+                    // 1. Busca o aluno recém-criado
+                    Aluno alunoCompleto = alunoDAO.buscarPorCpf(cpfLimpo);
+                    
+                    if (alunoCompleto != null) {
+                        System.out.println("DEBUG: Aluno encontrado id=" + alunoCompleto.getId());
+                        
+                        // 2. Calcula data (Hoje + 30 dias)
+                        LocalDate hoje = LocalDate.now();
+                        LocalDate vencimento = hoje.plusDays(30);
+                        
+                        // --- A CORREÇÃO ESTÁ AQUI: USAR PADRÃO ISO (yyyy-MM-dd) ---
+                        // O Banco de dados SÓ ACEITA assim para salvar.
+                        String dataVencimentoBanco = vencimento.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                        
+                        // Apenas para exibir na mensagem bonita pro usuário
+                        String dataVencimentoBr = vencimento.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                        
+                        // 3. Cria o Pagamento
+                        Pagamento primeiraMensalidade = new Pagamento();
+                        primeiraMensalidade.setAluno(alunoCompleto);
+                        primeiraMensalidade.setValor(alunoCompleto.getPlano().getValor());
+                        primeiraMensalidade.setDataVencimento(dataVencimentoBanco); // Usa a data ISO
+                        
+                        // 4. Salva
+                        PagamentoDAO pagDAO = new PagamentoDAO();
+                        boolean gerou = pagDAO.gerarMensalidade(primeiraMensalidade);
+                        
+                        if (gerou) {
+                            System.out.println("DEBUG: Mensalidade salva no banco!");
+                            mensagem += "\n\n FINANCEIRO: 1ª Mensalidade gerada para " + dataVencimentoBr;
+                            mensagem += "\n Valor: R$ " + String.format("%.2f", alunoCompleto.getPlano().getValor());
+                        } else {
+                            System.out.println("DEBUG: Falha ao salvar mensalidade no DAO.");
+                        }
+                    } else {
+                        System.out.println("DEBUG: Aluno não encontrado após salvar (Erro no buscarPorCpf?)");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace(); // Mostra o erro exato no console se houver
+                }
+                
+                mensagem += "\n\n Senha de acesso: " + senhaGerada;
+            }
+
+            JOptionPane.showMessageDialog(this, mensagem);
             voltarAoPlaceholder();
             atualizarListaAlunos();
+        }
+    }
+    
+    private void removerAluno(Aluno a) {
+        // Define os botões personalizados
+        Object[] options = { "Sim", "Não" };
+
+        int resposta = JOptionPane.showOptionDialog(
+            this, 
+            "Tem certeza que deseja remover o aluno '" + a.getNome() + "'?\nEsta ação não pode ser desfeita.",
+            "Confirmação de Remoção", 
+            JOptionPane.DEFAULT_OPTION,
+            JOptionPane.WARNING_MESSAGE,
+            null,
+            options,
+            options[0]
+        );
+
+        if (resposta == 0) {
+            boolean sucesso = alunoDAO.remover(a.getId());
+            
+            if (sucesso) {
+                JOptionPane.showMessageDialog(this, "Aluno removido com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                voltarAoPlaceholder();
+                atualizarListaAlunos();
+            }
         }
     }
 
@@ -374,10 +466,30 @@ public class TelaGestaoAlunos extends JDialog {
         JPanel card = new JPanel(new BorderLayout(15, 15));
         card.setBackground(COR_BRANCO);
         card.setBorder(BorderFactory.createCompoundBorder(
-        BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(220, 220, 220)),
-        new EmptyBorder(10, 15, 10, 15)));
+                BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(220, 220, 220)),
+                new EmptyBorder(10, 15, 10, 15)));
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // --- LÓGICA DA FOTO (NOVO) ---
+        JLabel labelFoto = new JLabel();
+        labelFoto.setPreferredSize(new Dimension(80, 80)); // Tamanho fixo
+        labelFoto.setHorizontalAlignment(SwingConstants.CENTER);
+        labelFoto.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+
+        try {
+            if (a.getCaminhoFoto() != null && !a.getCaminhoFoto().isEmpty()) {
+                ImageIcon icon = new ImageIcon(a.getCaminhoFoto());
+                Image img = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                labelFoto.setIcon(new ImageIcon(img));
+            } else {
+                labelFoto.setText("Sem Foto");
+            }
+        } catch (Exception e) {
+            labelFoto.setText("Sem Foto");
+        }
+        card.add(labelFoto, BorderLayout.WEST);
+        // -----------------------------
 
         // Info do Card
         JPanel info = new JPanel(); info.setOpaque(false);
@@ -385,7 +497,6 @@ public class TelaGestaoAlunos extends JDialog {
         
         JLabel lNome = new JLabel(a.getNome()); lNome.setFont(FONTE_NOME_CARD); lNome.setForeground(COR_AZUL_PRINCIPAL);
         
-        // Mostra o Plano e o Status
         String nomePlano = (a.getPlano() != null) ? a.getPlano().getNome() : "Sem Plano";
         JLabel lPlano = new JLabel(nomePlano + " - " + a.getStatus()); 
         lPlano.setFont(FONTE_KPI_TITULO); lPlano.setForeground(COR_TEXTO_PADRAO);
@@ -398,10 +509,15 @@ public class TelaGestaoAlunos extends JDialog {
         
         card.add(info, BorderLayout.CENTER);
         
-        // Ação de clique (Exibir Edição)
         card.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 exibirModoEdicao(a);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                card.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, COR_AZUL_PRINCIPAL), new EmptyBorder(9, 14, 9, 14)));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                card.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(220, 220, 220)), new EmptyBorder(10, 15, 10, 15)));
             }
         });
         return card;
@@ -435,24 +551,34 @@ public class TelaGestaoAlunos extends JDialog {
         
         limparListeners(botaoAcaoPrimaria); limparListeners(botaoAcaoSecundaria);
         botaoAcaoPrimaria.addActionListener(e -> salvarAluno());
-        // botaoAcaoSecundaria.addActionListener(e -> removerAluno(a)); // Implementar depois
+        botaoAcaoSecundaria.addActionListener(e -> removerAluno(a)); // Implementar depois
         
         layoutLadoDireito.show(painelLadoDireito, "FORMULARIO");
     }
 
     private void limparCampos() {
-        campoNome.setText(""); campoCpf.setText(""); campoDataNasc.setText("");
-        campoTelefone.setText(""); campoEmail.setText(""); caminhoDaFotoSelecionada = null;
-        labelFotoPreview.setIcon(null); labelFotoPreview.setText("Sem Foto");
+        campoNome.setText(""); 
+        campoCpf.setText(""); 
+        campoDataNasc.setText("");
+        campoTelefone.setText(""); 
+        campoEmail.setText(""); 
+        
+        // Reseta a foto
+        caminhoDaFotoSelecionada = null;
+        labelFotoPreview.setIcon(null); 
+        labelFotoPreview.setText("Sem Foto");
     }
     
     private void preencherCampos(Aluno a) {
-        campoNome.setText(a.getNome()); campoCpf.setText(a.getCpf()); campoDataNasc.setText(a.getDataNascimento());
-        campoTelefone.setText(a.getTelefone()); campoEmail.setText(a.getEmail());
+        campoNome.setText(a.getNome()); 
+        campoCpf.setText(a.getCpf()); 
+        campoDataNasc.setText(a.getDataNascimento());
+        campoTelefone.setText(a.getTelefone()); 
+        campoEmail.setText(a.getEmail());
         comboStatus.setSelectedItem(a.getStatus());
         campoDataMatricula.setText(a.getDataMatricula());
         
-        // Selecionar o plano correto no ComboBox
+        // Selecionar Plano
         if (a.getPlano() != null) {
             for (int i = 0; i < comboPlano.getItemCount(); i++) {
                 Plano p = comboPlano.getItemAt(i);
@@ -462,7 +588,24 @@ public class TelaGestaoAlunos extends JDialog {
                 }
             }
         }
-        // Foto...
+        
+        // --- LÓGICA DA FOTO (NOVO) ---
+        caminhoDaFotoSelecionada = a.getCaminhoFoto();
+        if (caminhoDaFotoSelecionada != null && !caminhoDaFotoSelecionada.isEmpty()) {
+            try {
+                ImageIcon icon = new ImageIcon(caminhoDaFotoSelecionada);
+                Image img = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                labelFotoPreview.setIcon(new ImageIcon(img));
+                labelFotoPreview.setText(null);
+            } catch (Exception e) {
+                labelFotoPreview.setIcon(null);
+                labelFotoPreview.setText("Sem Foto");
+            }
+        } else {
+            labelFotoPreview.setIcon(null);
+            labelFotoPreview.setText("Sem Foto");
+        }
+        // -----------------------------
     }
 
     private void voltarAoPlaceholder() {
