@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class ConexaoDAO {
     private static final String URL = "jdbc:mysql://localhost:3306/gym_manager_db";
     private static final String USUARIO = "root"; // seu usuário
-    private static final String SENHA = ""; // sua senha
+    private static final String SENHA = "1105"; // sua senha
 
     public static Connection getConexao() {
         try {

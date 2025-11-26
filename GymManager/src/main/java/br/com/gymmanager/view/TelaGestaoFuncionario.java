@@ -1,5 +1,13 @@
-// O nome do seu pacote
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package br.com.gymmanager.view;
+
+/**
+ *
+ * @author joaoreis699
+ */
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -11,16 +19,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 
 import br.com.gymmanager.model.Funcionario;
 import br.com.gymmanager.dao.FuncionarioDAO;
 
+// MUDANÇA 1: Extends JDialog
+public class TelaGestaoFuncionario extends JDialog {
 
-public class TelaGestaoFuncionario extends JFrame {
-
-    // CONSTANTES DE ESTILO ---
+    // --- CONSTANTES DE ESTILO ---
     private static final Color COR_FUNDO = new Color(240, 242, 245);
     private static final Color COR_AZUL_PRINCIPAL = new Color(30, 90, 200);
     private static final Color COR_BRANCO = Color.WHITE;
@@ -41,7 +48,7 @@ public class TelaGestaoFuncionario extends JFrame {
             new EmptyBorder(5, 5, 5, 5)
     );
 
-    // Componentes do Lado Direito (Gerenciador de Painéis)
+    // --- Componentes do Lado Direito ---
     private CardLayout layoutLadoDireito;
     private JPanel painelLadoDireito;
     private JPanel painelFormulario;
@@ -49,71 +56,71 @@ public class TelaGestaoFuncionario extends JFrame {
     private static final String PAINEL_FORM = "FORMULARIO";
     private static final String PAINEL_PLACEHOLDER = "PLACEHOLDER";
 
-    // Componentes do Formulário
+    // --- Componentes do Formulário ---
     private JLabel labelTituloForm;
-    private JTextField campoNome, campoDataNasc, campoDataAdmissao;
-    private JFormattedTextField campoCpf;
+    private JTextField campoNome;
+    private JFormattedTextField campoCpf, campoDataNasc, campoDataAdmissao;
     private JComboBox<String> comboCargo;
     private JPasswordField campoSenha, campoConfirmaSenha;
+    private JFormattedTextField campoTelefone;
+    private JTextField campoEmail;
     private JButton botaoAcaoPrimaria, botaoAcaoSecundaria, botaoSelecionarFoto;
     private JLabel labelFotoPreview;
-        private String caminhoDaFotoSelecionada = null;
+    private String caminhoDaFotoSelecionada = null;
 
-        // Componentes da Lista (Esquerda)
-        private JPanel painelListaCards;
-        private JScrollPane scrollLista;
+    // --- Componentes da Lista (Esquerda) ---
+    private JPanel painelListaCards;
+    private JScrollPane scrollLista;
 
-        // Controle de Estado
-        private Funcionario funcionarioSelecionadoParaEdicao = null;
-        private FuncionarioDAO funcionarioDAO;
+    // --- Controle de Estado ---
+    private Funcionario funcionarioSelecionadoParaEdicao = null;
+    private FuncionarioDAO funcionarioDAO;
 
-        private JFrame abrirTelaPrincipal;
+    // MUDANÇA 2: Construtor recebe JFrame parent e configura JDialog
+    public TelaGestaoFuncionario(JFrame parent) {
+        super(parent, "GymManager - Gestão de Funcionários", true);
+        
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        
+        // MUDANÇA 3: Maximizar manualmente usando Toolkit
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setSize(screenSize.width, screenSize.height);
+        
+        setMinimumSize(new Dimension(1024, 768));
+        setLocationRelativeTo(null);
 
-        public TelaGestaoFuncionario(JFrame telaPrincipal) {
-            this.abrirTelaPrincipal = telaPrincipal;
+        this.funcionarioDAO = new FuncionarioDAO();
 
-            setTitle("GymManager - Gestão de Funcionários");
-            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            setExtendedState(JFrame.MAXIMIZED_BOTH);
-            setMinimumSize(new Dimension(1024, 768));
-            setLocationRelativeTo(null);
+        JPanel painelFundo = new JPanel(new BorderLayout(20, 20));
+        painelFundo.setBackground(COR_FUNDO);
+        painelFundo.setBorder(new EmptyBorder(20, 20, 20, 20));
+        setContentPane(painelFundo);
 
-            this.funcionarioDAO = new FuncionarioDAO();
+        painelFundo.add(criarHeader(), BorderLayout.NORTH);
+        painelFundo.add(criarPainelLadoEsquerdo(), BorderLayout.CENTER);
+        painelFundo.add(criarPainelLadoDireito(), BorderLayout.EAST);
 
-            JPanel painelFundo = new JPanel(new BorderLayout(20, 20));
-            painelFundo.setBackground(COR_FUNDO);
-            painelFundo.setBorder(new EmptyBorder(20, 20, 20, 20));
-            setContentPane(painelFundo);
+        JLabel labelRodape = new JLabel("© 2025 GymManager — Todos os direitos reservados", SwingConstants.CENTER);
+        labelRodape.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        labelRodape.setForeground(COR_TEXTO_PADRAO);
+        painelFundo.add(labelRodape, BorderLayout.SOUTH);
 
-            painelFundo.add(criarHeader(), BorderLayout.NORTH);
+        atualizarListaFuncionarios();
+    }
 
-            painelFundo.add(criarPainelLadoEsquerdo(), BorderLayout.CENTER);
+    private JPanel criarHeader() {
+        JPanel painelHeader = new JPanel(new BorderLayout());
+        painelHeader.setBackground(COR_FUNDO);
 
-            painelFundo.add(criarPainelLadoDireito(), BorderLayout.EAST);
+        JPanel painelLogoTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        painelLogoTitulo.setOpaque(false);
 
-            JLabel labelRodape = new JLabel("© 2025 GymManager — Todos os direitos reservados", SwingConstants.CENTER);
-            labelRodape.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-            labelRodape.setForeground(COR_TEXTO_PADRAO);
-            painelFundo.add(labelRodape, BorderLayout.SOUTH);
-
-            atualizarListaFuncionarios();
-        }
-
-        private JPanel criarHeader() {
-            JPanel painelHeader = new JPanel(new BorderLayout());
-            painelHeader.setBackground(COR_FUNDO);
-
-            JPanel painelLogoTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
-            painelLogoTitulo.setOpaque(false);
-
-            try {
-                ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Imagens/logo.png"));
+        try {
+            ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Imagens/logo.png"));
             Image logoRedimensionada = logoIcon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
             JLabel labelLogo = new JLabel(new ImageIcon(logoRedimensionada));
             painelLogoTitulo.add(labelLogo);
-        } catch (Exception e) {
-            System.err.println("Ícone /Imagens/logo.png não encontrado.");
-        }
+        } catch (Exception e) { }
 
         JLabel labelTitulo = new JLabel("GESTÃO DE FUNCIONÁRIOS");
         labelTitulo.setFont(FONTE_TITULO_LOGO);
@@ -124,22 +131,11 @@ public class TelaGestaoFuncionario extends JFrame {
 
         JButton botaoVoltar = new JButton("Voltar a Tela Principal");
         
-        botaoVoltar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                
-                abrirTelaPrincipal.setExtendedState(JFrame.NORMAL);
-                abrirTelaPrincipal.setExtendedState(JFrame.MAXIMIZED_BOTH);
-                abrirTelaPrincipal.setVisible(true);
-                abrirTelaPrincipal.toFront();
-                
-                dispose();
-            }
-        });
-        
         estilizarBotaoVoltar(botaoVoltar); 
         
+        // MUDANÇA 4: Botão voltar simplificado (apenas dispose)
         botaoVoltar.addActionListener(e -> dispose());
+        
         painelHeader.add(botaoVoltar, BorderLayout.EAST);
 
         return painelHeader;
@@ -150,7 +146,7 @@ public class TelaGestaoFuncionario extends JFrame {
         painelCentral.setOpaque(false);
 
         JButton botaoAdicionar = new JButton("+ Adicionar Novo Funcionário");
-        estilizarBotaoPrimario(botaoAdicionar); // Botão principal é azul
+        estilizarBotaoPrimario(botaoAdicionar); 
         botaoAdicionar.setFont(new Font("Segoe UI", Font.BOLD, 14));
         botaoAdicionar.setPreferredSize(new Dimension(0, 40));
         botaoAdicionar.addActionListener(e -> exibirModoAdicao());
@@ -165,9 +161,7 @@ public class TelaGestaoFuncionario extends JFrame {
         wrapperPainelLista.add(painelListaCards, BorderLayout.NORTH);
 
         scrollLista = new JScrollPane(wrapperPainelLista);
-        
         scrollLista.getViewport().setBackground(COR_FUNDO); 
-        
         scrollLista.setBorder(BorderFactory.createEmptyBorder());
         scrollLista.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollLista.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -198,11 +192,8 @@ public class TelaGestaoFuncionario extends JFrame {
         labelPlaceholder.setHorizontalAlignment(SwingConstants.CENTER);
         painelPlaceholder.add(labelPlaceholder);
 
-        // Adiciona os dois painéis ao CardLayout
         painelLadoDireito.add(painelPlaceholder, PAINEL_PLACEHOLDER);
         painelLadoDireito.add(painelFormulario, PAINEL_FORM);
-
-        // Define o Placeholder como o painel inicial
         layoutLadoDireito.show(painelLadoDireito, PAINEL_PLACEHOLDER);
 
         return painelLadoDireito;
@@ -216,14 +207,12 @@ public class TelaGestaoFuncionario extends JFrame {
                 new EmptyBorder(15, 20, 15, 20)
         ));
         
-        // Título do Formulário
         labelTituloForm = new JLabel("Adicionar Novo Funcionário");
         labelTituloForm.setFont(FONTE_TITULO_FORM);
         labelTituloForm.setForeground(COR_AZUL_PRINCIPAL);
         labelTituloForm.setBorder(new EmptyBorder(0, 0, 10, 0));
         painelFormulario.add(labelTituloForm, BorderLayout.NORTH);
 
-        // Painel com os campos
         JPanel camposPanel = new JPanel(new GridBagLayout());
         camposPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -233,126 +222,74 @@ public class TelaGestaoFuncionario extends JFrame {
 
         // LINHA 0: Foto
         gbc.gridx = 0; gbc.gridy = 0;
-        JLabel labelFoto = new JLabel("Foto:");
-        estilizarLabel(labelFoto);
-        camposPanel.add(labelFoto, gbc);
-
+        JLabel labelFoto = new JLabel("Foto:"); estilizarLabel(labelFoto); camposPanel.add(labelFoto, gbc);
+        
         gbc.gridx = 1; gbc.gridy = 0;
-        labelFotoPreview = new JLabel();
-        labelFotoPreview.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        labelFotoPreview.setPreferredSize(new Dimension(80, 80));
-        labelFotoPreview.setHorizontalAlignment(SwingConstants.CENTER);
-        labelFotoPreview.setText("Sem Foto");
-        camposPanel.add(labelFotoPreview, gbc);
-
+        labelFotoPreview = new JLabel(); labelFotoPreview.setBorder(BorderFactory.createLineBorder(Color.GRAY)); labelFotoPreview.setPreferredSize(new Dimension(80, 80)); labelFotoPreview.setHorizontalAlignment(SwingConstants.CENTER); labelFotoPreview.setText("Sem Foto"); camposPanel.add(labelFotoPreview, gbc);
+        
         gbc.gridx = 2; gbc.gridy = 0;
-        botaoSelecionarFoto = new JButton("Selecionar...");
-        
-        estilizarBotaoPadrao(botaoSelecionarFoto); 
-        
+        botaoSelecionarFoto = new JButton("Selecionar..."); estilizarBotaoPadrao(botaoSelecionarFoto); 
         botaoSelecionarFoto.addActionListener(e -> selecionarFoto());
         camposPanel.add(botaoSelecionarFoto, gbc);
 
         // LINHA 1: Nome
-        gbc.gridx = 0; gbc.gridy = 1;
-        JLabel labelNome = new JLabel("Nome:");
-        estilizarLabel(labelNome);
-        camposPanel.add(labelNome, gbc);
-
-        gbc.gridx = 1; gbc.gridy = 1; gbc.gridwidth = 2;
-        campoNome = new JTextField();
-        estilizarCampo(campoNome);
-        camposPanel.add(campoNome, gbc);
-        gbc.gridwidth = 1;
+        gbc.gridx = 0; gbc.gridy = 1; JLabel labelNome = new JLabel("Nome:"); estilizarLabel(labelNome); camposPanel.add(labelNome, gbc);
+        gbc.gridx = 1; gbc.gridy = 1; gbc.gridwidth = 2; campoNome = new JTextField(); estilizarCampo(campoNome); camposPanel.add(campoNome, gbc); gbc.gridwidth = 1;
 
         // LINHA 2: CPF 
-        gbc.gridx = 0; gbc.gridy = 2;
-        JLabel labelCpf = new JLabel("CPF (Login):");
-        estilizarLabel(labelCpf);
-        camposPanel.add(labelCpf, gbc);
-
+        gbc.gridx = 0; gbc.gridy = 2; JLabel labelCpf = new JLabel("CPF (Login):"); estilizarLabel(labelCpf); camposPanel.add(labelCpf, gbc);
         gbc.gridx = 1; gbc.gridy = 2; gbc.gridwidth = 2;
-        try { campoCpf = new JFormattedTextField(new MaskFormatter("###.###.###-##"));
-        } catch (ParseException e) { campoCpf = new JFormattedTextField(); }
-        estilizarCampo(campoCpf);
-        camposPanel.add(campoCpf, gbc);
-        gbc.gridwidth = 1;
+        try { campoCpf = new JFormattedTextField(new MaskFormatter("###.###.###-##")); } catch (ParseException e) { campoCpf = new JFormattedTextField(); }
+        estilizarCampo(campoCpf); camposPanel.add(campoCpf, gbc); gbc.gridwidth = 1;
 
         // LINHA 3: Data Nasc
-        gbc.gridx = 0; gbc.gridy = 3;
-        JLabel labelNasc = new JLabel("Data Nasc:");
-        estilizarLabel(labelNasc);
-        camposPanel.add(labelNasc, gbc);
-
+        gbc.gridx = 0; gbc.gridy = 3; JLabel labelNasc = new JLabel("Data Nasc:"); estilizarLabel(labelNasc); camposPanel.add(labelNasc, gbc);
         gbc.gridx = 1; gbc.gridy = 3; gbc.gridwidth = 2;
-        try { campoDataNasc = new JFormattedTextField(new MaskFormatter("##/##/####"));
-        } catch (ParseException e) { campoDataNasc = new JTextField(); }
-        estilizarCampo(campoDataNasc);
-        camposPanel.add(campoDataNasc, gbc);
-        gbc.gridwidth = 1;
+        try { campoDataNasc = new JFormattedTextField(new MaskFormatter("##/##/####")); } catch (ParseException e) { campoDataNasc = new JFormattedTextField(); }
+        estilizarCampo(campoDataNasc); camposPanel.add(campoDataNasc, gbc); gbc.gridwidth = 1;
 
-        // LINHA 4: Cargo
-        gbc.gridx = 0; gbc.gridy = 4;
-        JLabel labelCargo = new JLabel("Cargo:");
-        estilizarLabel(labelCargo);
-        camposPanel.add(labelCargo, gbc);
-
+        // --- NOVOS CAMPOS ---
+        
+        // LINHA 4: Telefone
+        gbc.gridx = 0; gbc.gridy = 4; JLabel labelTel = new JLabel("Telefone:"); estilizarLabel(labelTel); camposPanel.add(labelTel, gbc);
         gbc.gridx = 1; gbc.gridy = 4; gbc.gridwidth = 2;
-        String[] cargos = {"Recepcionista", "Instrutor", "Gerente"};
-        comboCargo = new JComboBox<>(cargos);
-        comboCargo.setFont(FONTE_CAMPO_FORM);
-        comboCargo.setForeground(COR_TEXTO_CAMPO);
-        comboCargo.setBackground(COR_BRANCO);
-        camposPanel.add(comboCargo, gbc);
-        gbc.gridwidth = 1;
-
-        // LINHA 5: Data Admissão
-        gbc.gridx = 0; gbc.gridy = 5;
-        JLabel labelAdm = new JLabel("Admissão:");
-        estilizarLabel(labelAdm);
-        camposPanel.add(labelAdm, gbc);
-
+        try { campoTelefone = new JFormattedTextField(new MaskFormatter("(##) #####-####")); } catch (ParseException e) { campoTelefone = new JFormattedTextField(); }
+        estilizarCampo(campoTelefone); camposPanel.add(campoTelefone, gbc); gbc.gridwidth = 1;
+        
+        // LINHA 5: Email
+        gbc.gridx = 0; gbc.gridy = 5; JLabel labelEmail = new JLabel("Email:"); estilizarLabel(labelEmail); camposPanel.add(labelEmail, gbc);
         gbc.gridx = 1; gbc.gridy = 5; gbc.gridwidth = 2;
-        try { campoDataAdmissao = new JFormattedTextField(new MaskFormatter("##/##/####"));
-        } catch (ParseException e) { campoDataAdmissao = new JTextField(); }
-        estilizarCampo(campoDataAdmissao);
-        camposPanel.add(campoDataAdmissao, gbc);
-        gbc.gridwidth = 1;
+        campoEmail = new JTextField(); estilizarCampo(campoEmail); camposPanel.add(campoEmail, gbc); gbc.gridwidth = 1;
 
-        // LINHA 6: Senha
-        gbc.gridx = 0; gbc.gridy = 6;
-        JLabel labelSenha = new JLabel("Senha:");
-        estilizarLabel(labelSenha);
-        camposPanel.add(labelSenha, gbc);
+        // --------------------
 
+        // LINHA 6: Cargo (Mudou de 4 para 6)
+        gbc.gridx = 0; gbc.gridy = 6; JLabel labelCargo = new JLabel("Cargo:"); estilizarLabel(labelCargo); camposPanel.add(labelCargo, gbc);
         gbc.gridx = 1; gbc.gridy = 6; gbc.gridwidth = 2;
-        campoSenha = new JPasswordField();
-        estilizarCampo(campoSenha);
-        camposPanel.add(campoSenha, gbc);
-        gbc.gridwidth = 1;
+        comboCargo = new JComboBox<>(new String[]{"Recepcionista", "Instrutor", "Gerente"}); 
+        comboCargo.setFont(FONTE_CAMPO_FORM); comboCargo.setForeground(COR_TEXTO_CAMPO); comboCargo.setBackground(COR_BRANCO);
+        camposPanel.add(comboCargo, gbc); gbc.gridwidth = 1;
 
-        // LINHA 7: Confirma Senha
-        gbc.gridx = 0; gbc.gridy = 7;
-        JLabel labelConf = new JLabel("Confirmar:");
-        estilizarLabel(labelConf);
-        camposPanel.add(labelConf, gbc);
-
+        // LINHA 7: Admissão (Mudou de 5 para 7)
+        gbc.gridx = 0; gbc.gridy = 7; JLabel labelAdm = new JLabel("Admissão:"); estilizarLabel(labelAdm); camposPanel.add(labelAdm, gbc);
         gbc.gridx = 1; gbc.gridy = 7; gbc.gridwidth = 2;
-        campoConfirmaSenha = new JPasswordField();
-        estilizarCampo(campoConfirmaSenha);
-        camposPanel.add(campoConfirmaSenha, gbc);
-        gbc.gridwidth = 1;
+        try { campoDataAdmissao = new JFormattedTextField(new MaskFormatter("##/##/####")); } catch (ParseException e) { campoDataAdmissao = new JFormattedTextField(); }
+        estilizarCampo(campoDataAdmissao); camposPanel.add(campoDataAdmissao, gbc); gbc.gridwidth = 1;
 
-        gbc.gridy = 8; gbc.weighty = 1.0;
-        camposPanel.add(new JLabel(), gbc);
+        // LINHA 8: Senha (Mudou de 6 para 8)
+        gbc.gridx = 0; gbc.gridy = 8; JLabel labelSenha = new JLabel("Senha:"); estilizarLabel(labelSenha); camposPanel.add(labelSenha, gbc);
+        gbc.gridx = 1; gbc.gridy = 8; gbc.gridwidth = 2; campoSenha = new JPasswordField(); estilizarCampo(campoSenha); camposPanel.add(campoSenha, gbc); gbc.gridwidth = 1;
+
+        // LINHA 9: Confirma Senha (Mudou de 7 para 9)
+        gbc.gridx = 0; gbc.gridy = 9; JLabel labelConf = new JLabel("Confirmar:"); estilizarLabel(labelConf); camposPanel.add(labelConf, gbc);
+        gbc.gridx = 1; gbc.gridy = 9; gbc.gridwidth = 2; campoConfirmaSenha = new JPasswordField(); estilizarCampo(campoConfirmaSenha); camposPanel.add(campoConfirmaSenha, gbc); gbc.gridwidth = 1;
+
+        gbc.gridy = 10; gbc.weighty = 1.0; camposPanel.add(new JLabel(), gbc);
 
         JScrollPane scrollForm = new JScrollPane(camposPanel);
-        scrollForm.setOpaque(false);
-        scrollForm.getViewport().setOpaque(false);
-        scrollForm.setBorder(BorderFactory.createEmptyBorder());
+        scrollForm.setOpaque(false); scrollForm.getViewport().setOpaque(false); scrollForm.setBorder(BorderFactory.createEmptyBorder());
         painelFormulario.add(scrollForm, BorderLayout.CENTER);
 
-        // Painel de Botões Dinâmicos
         JPanel painelBotoesForm = new JPanel(new GridLayout(1, 2, 10, 0));
         painelBotoesForm.setOpaque(false);
 
@@ -361,14 +298,12 @@ public class TelaGestaoFuncionario extends JFrame {
         painelBotoesForm.add(botaoAcaoPrimaria);
 
         botaoAcaoSecundaria = new JButton("Cancelar");
-        // O estilo será definido dinamicamente
         painelBotoesForm.add(botaoAcaoSecundaria);
 
         painelFormulario.add(painelBotoesForm, BorderLayout.SOUTH);
     }
 
-    // Helpers de Estilização (Correção Dark Mode)
-
+    // Helpers de Estilização
     private void estilizarLabel(JLabel label) {
         label.setFont(FONTE_LABEL_FORM);
         label.setForeground(COR_TEXTO_PADRAO);
@@ -393,7 +328,6 @@ public class TelaGestaoFuncionario extends JFrame {
     
     private void estilizarBotaoVoltar(JButton botao) {
         Color corFundoVoltar = new Color(80, 80, 80); 
-        
         Color corHoverVoltar = new Color(110, 110, 110); 
 
         botao.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -403,9 +337,7 @@ public class TelaGestaoFuncionario extends JFrame {
         botao.setOpaque(true); 
         botao.setBorderPainted(false); 
         botao.setFocusPainted(false); 
-        
         botao.setBorder(new EmptyBorder(8, 15, 8, 15)); 
-        
         botao.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         for (java.awt.event.MouseListener ml : botao.getMouseListeners()) {
@@ -430,7 +362,7 @@ public class TelaGestaoFuncionario extends JFrame {
         botao.setBackground(COR_BRANCO);
         botao.setForeground(COR_TEXTO_PADRAO);
         botao.setFocusPainted(false);
-        botao.setOpaque(true); // Força a cor de fundo
+        botao.setOpaque(true);
 
         botao.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(200, 200, 200)),
@@ -501,7 +433,6 @@ public class TelaGestaoFuncionario extends JFrame {
         card.setPreferredSize(cardSize);
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // LADO ESQUERDO: FOTO
         JLabel labelFoto = new JLabel();
         labelFoto.setPreferredSize(new Dimension(96, 96));
         labelFoto.setHorizontalAlignment(SwingConstants.CENTER);
@@ -519,7 +450,6 @@ public class TelaGestaoFuncionario extends JFrame {
         }
         card.add(labelFoto, BorderLayout.WEST);
 
-        // CENTRO: INFORMAÇÕES 
         JPanel painelInfo = new JPanel();
         painelInfo.setOpaque(false);
         painelInfo.setLayout(new BoxLayout(painelInfo, BoxLayout.Y_AXIS));
@@ -550,7 +480,6 @@ public class TelaGestaoFuncionario extends JFrame {
 
         card.add(painelInfo, BorderLayout.CENTER);
 
-        // LÓGICA DE CLIQUE NO CARD
         card.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 exibirModoEdicao(func);
@@ -648,10 +577,11 @@ public class TelaGestaoFuncionario extends JFrame {
 
 
     private void salvarFuncionario() {
-        // 1. Coletar Dados
         String nome = campoNome.getText();
         String cpf = campoCpf.getText();
         String dataNasc = campoDataNasc.getText();
+        String telefone = campoTelefone.getText(); // Novo
+        String email = campoEmail.getText();       // Novo
         String cargo = (String) comboCargo.getSelectedItem();
         String dataAdmissao = campoDataAdmissao.getText();
         String senha = new String(campoSenha.getPassword());
@@ -670,27 +600,30 @@ public class TelaGestaoFuncionario extends JFrame {
         }
             
         boolean sucesso = false;
-     
         cpf = cpf.replaceAll("[.-]", "");
         
         if (funcionarioSelecionadoParaEdicao == null) {
-            
-            Funcionario novoFunc = new Funcionario(nome, cpf, dataNasc, 0, cargo, dataAdmissao, senha, caminhoDaFotoSelecionada);
-            novoFunc.setId(0); 
+            // CRIAR NOVO - Agora setamos email e telefone
+            Funcionario novoFunc = new Funcionario();
             novoFunc.setNome(nome);
             novoFunc.setCpf(cpf);
             novoFunc.setDataNascimento(dataNasc);
+            novoFunc.setTelefone(telefone); // Novo
+            novoFunc.setEmail(email);       // Novo
             novoFunc.setCargo(cargo);
             novoFunc.setDataAdmissao(dataAdmissao);
-            novoFunc.setSenha(senha); 
+            novoFunc.setSenha(senha);
             novoFunc.setCaminhoFoto(caminhoDaFotoSelecionada);
 
             sucesso = funcionarioDAO.cadastrar(novoFunc);
 
         } else {
+            // ATUALIZAR EXISTENTE
             funcionarioSelecionadoParaEdicao.setNome(nome);
             funcionarioSelecionadoParaEdicao.setCpf(cpf);
             funcionarioSelecionadoParaEdicao.setDataNascimento(dataNasc);
+            funcionarioSelecionadoParaEdicao.setTelefone(telefone); // Novo
+            funcionarioSelecionadoParaEdicao.setEmail(email);       // Novo
             funcionarioSelecionadoParaEdicao.setCargo(cargo);
             funcionarioSelecionadoParaEdicao.setDataAdmissao(dataAdmissao);
             
@@ -738,6 +671,8 @@ public class TelaGestaoFuncionario extends JFrame {
         campoNome.setText(func.getNome());
         campoCpf.setText(func.getCpf());
         campoDataNasc.setText(func.getDataNascimento());
+        campoTelefone.setText(func.getTelefone()); // Novo
+        campoEmail.setText(func.getEmail());       // Novo
         campoDataAdmissao.setText(func.getDataAdmissao());
         comboCargo.setSelectedItem(func.getCargo());
         
@@ -745,6 +680,7 @@ public class TelaGestaoFuncionario extends JFrame {
         campoConfirmaSenha.setText(func.getSenha());
         
         caminhoDaFotoSelecionada = func.getCaminhoFoto();
+        // ... resto da lógica da foto ...
         if (caminhoDaFotoSelecionada != null && !caminhoDaFotoSelecionada.isEmpty()) {
             try {
                 ImageIcon icon = new ImageIcon(caminhoDaFotoSelecionada);
@@ -765,6 +701,8 @@ public class TelaGestaoFuncionario extends JFrame {
         campoNome.setText("");
         campoCpf.setText("");
         campoDataNasc.setText("");
+        campoTelefone.setText(""); // Novo
+        campoEmail.setText("");    // Novo
         campoDataAdmissao.setText("");
         comboCargo.setSelectedIndex(0);
         campoSenha.setText("");
@@ -782,7 +720,6 @@ public class TelaGestaoFuncionario extends JFrame {
 
     public static void main(String[] args) {
         try {
-            // Tenta definir o Look and Feel "Nimbus"
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     UIManager.setLookAndFeel(info.getClassName());
@@ -790,7 +727,6 @@ public class TelaGestaoFuncionario extends JFrame {
                 }
             }
         } catch (Exception e) {
-            // Se Nimbus não estiver disponível, usa o padrão do Java (Metal)
             try {
                 UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             } catch (Exception ex) {
@@ -798,7 +734,6 @@ public class TelaGestaoFuncionario extends JFrame {
             }
         }
         
-        // Garante que todos os campos de texto sejam brancos
         UIManager.put("TextField.background", Color.WHITE);
         UIManager.put("FormattedTextField.background", Color.WHITE);
         UIManager.put("PasswordField.background", Color.WHITE);

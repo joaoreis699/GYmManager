@@ -8,24 +8,27 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class Aluno extends Pessoa {
-
-    private LocalDateTime dataMatricula;
+    private String status;
+    private Plano plano; 
+    private String dataMatricula;
 
     public Aluno() {
-        super(); 
+        super();
+    }
+    
+    public Aluno(int id, String nome, String cpf, String dataNascimento, String telefone, String email, String senha, String foto, String status, Plano plano, String dataMatricula) {
+        super(id, nome, cpf, dataNascimento, telefone, email, senha, foto);
+        //this.status = status;
+        //his.plano = plano;
+        //this.dataMatricula = dataMatricula;
     }
 
-    public Aluno(String nome, String cpf, String telefone, String email, LocalDateTime dataMatricula) {
-        
-        this.dataMatricula = dataMatricula;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
+    public Plano getPlano() { return plano; }
+    public void setPlano(Plano plano) { this.plano = plano; }
 
-    public LocalDateTime getDataMatricula() {
-        return dataMatricula;
-    }
-
-    public void setDataMatricula(LocalDateTime dataMatricula) {
-        this.dataMatricula = dataMatricula;
-    }
+    public String getDataMatricula() { return dataMatricula; }
+    public void setDataMatricula(String dataMatricula) { this.dataMatricula = dataMatricula; }
 }

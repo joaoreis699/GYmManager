@@ -92,25 +92,33 @@ public class TelaPrincipal extends JFrame {
         JPanel painelAcoes = new JPanel(new GridLayout(2, 3, 20, 20)); // 2 linhas, 3 colunas, com espaçamento
         painelAcoes.setBackground(COR_FUNDO);
         painelAcoes.setBorder(new EmptyBorder(10, 10, 10, 10));
-
+        
         JButton botaoGestaoAlunos = criarBotaoAcao("Gestão de Alunos", "/Imagens/btn_alunos.png");
+        botaoGestaoAlunos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TelaGestaoAlunos telaAlunos = new TelaGestaoAlunos(TelaPrincipal.this);
+                telaAlunos.setVisible(true);
+            }
+        });
+
+        painelAcoes.add(botaoGestaoAlunos);
+
         JButton botaoControleCaixa = criarBotaoAcao("Controle de Caixa", "/Imagens/btn_caixa.png");
         JButton botaoGerarFichaTreino = criarBotaoAcao("Gerar Ficha de Treino", "/Imagens/btn_treino.png");
-        JButton botaoGestaoFuncionarios = criarBotaoAcao("Gestão de Funcionários", "/Imagens/btn_funcionarios.png");
         JButton botaoConsultarPlanos = criarBotaoAcao("Consultar Planos", "/Imagens/btn_planos.png");
         
+        JButton botaoGestaoFuncionarios = criarBotaoAcao("Gestão de Funcionários", "/Imagens/btn_funcionarios.png");
         botaoGestaoFuncionarios.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 TelaGestaoFuncionario abrirGestaoFuncionario = new TelaGestaoFuncionario(TelaPrincipal.this);
                 abrirGestaoFuncionario.setVisible(true);
-                
-                setVisible(false);
             }
         });
         
         painelAcoes.add(botaoGestaoFuncionarios);
-        painelAcoes.add(botaoGestaoAlunos);
+        
         painelAcoes.add(botaoControleCaixa);
         painelAcoes.add(botaoGerarFichaTreino);
         painelAcoes.add(botaoConsultarPlanos);
