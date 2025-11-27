@@ -4,12 +4,18 @@
 
 package br.com.gymmanager.view;
 
-import br.com.gymmanager.dao.FuncionarioDAO;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JOptionPane;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import br.com.gymmanager.dao.FuncionarioDAO;
+import br.com.gymmanager.dao.AlunoDAO;
+
+import br.com.gymmanager.model.Funcionario;
+import br.com.gymmanager.model.Aluno;
+
+import br.com.gymmanager.util.Sessao;
 
 public class TeladeLogin extends JFrame {
 
@@ -25,22 +31,22 @@ public class TeladeLogin extends JFrame {
         setLocationRelativeTo(null); // Centraliza
         setResizable(false);
 
-        // Cores principais
         Color azul = new Color(30, 90, 200);
         Color fundo = Color.WHITE;
 
-        // Painel principal
         JPanel painel = new JPanel();
         painel.setBackground(fundo);
         painel.setLayout(null);
         add(painel);
 
-        // LOGO!!
-        ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Imagens/logo.png"));
-        Image logoRedimensionada = logoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
-        labelLogo = new JLabel(new ImageIcon(logoRedimensionada));
-        labelLogo.setBounds(140, 40, 120, 120);
-        painel.add(labelLogo);
+        try {
+            ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Imagens/logo.png"));
+            Image logoRedimensionada = logoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+            labelLogo = new JLabel(new ImageIcon(logoRedimensionada));
+            labelLogo.setBounds(140, 40, 120, 120);
+            painel.add(labelLogo);
+        } catch (Exception e) {
+        }
 
         // Título
         titulo = new JLabel("GYM MANAGER");
@@ -56,7 +62,6 @@ public class TeladeLogin extends JFrame {
         labelCpf.setBounds(60, 220, 100, 25);
         painel.add(labelCpf);
 
-        // Campo CPF
         campoCpf = new JTextField();
         campoCpf.setBounds(60, 245, 280, 30);
         campoCpf.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -86,30 +91,46 @@ public class TeladeLogin extends JFrame {
         botaoEntrar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String cpf = campoCpf.getText();
+                String cpfBruto = campoCpf.getText();
                 String senha = new String(campoSenha.getPassword());
+                
+                String cpfLimpo = cpfBruto.replaceAll("[^0-9]", "");
 
-                if (cpf.isEmpty() || senha.isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Por favor, preencha CPF e Senha.", "Campos Vazios", JOptionPane.WARNING_MESSAGE);
-                    return;
+                if (cpfLimpo.isEmpty() || senha.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Por favor, preencha CPF e Senha.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                    return; 
                 }
-                FuncionarioDAO funcionarioDAO = new FuncionarioDAO();
 
-                if (funcionarioDAO.verificarCredenciais(cpf, senha) != null){
+                FuncionarioDAO funcDAO = new FuncionarioDAO();
+                Funcionario funcLogado = funcDAO.verificarCredenciais(cpfLimpo, senha);
 
-                    JOptionPane.showMessageDialog(null, "Login realizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                if (funcLogado != null) {
+                    
+                    Sessao.getInstance().setFuncionarioLogado(funcLogado);
+                    
+                    JOptionPane.showMessageDialog(null, "Bem-vindo(a), " + funcLogado.getNome() + "!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
                     TelaPrincipal telaPrincipal = new TelaPrincipal();
                     telaPrincipal.setVisible(true);
                     dispose(); 
-                    
+                    return;   
                 } else {
-                    JOptionPane.showMessageDialog(null, "CPF ou Senha inválidos. ", "Erro de login.", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "CPF ou Senha incorretos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
     }
+
     public static void main(String[] args) {
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {}
+        
         SwingUtilities.invokeLater(() -> {
             new TeladeLogin().setVisible(true);
         });

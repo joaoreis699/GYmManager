@@ -31,7 +31,6 @@ public class Exercicio {
     public String getGrupoMuscular() { return grupoMuscular; }
     public void setGrupoMuscular(String grupoMuscular) { this.grupoMuscular = grupoMuscular; }
 
-    // Importante para aparecer o nome bonito no ComboBox depois
     @Override
     public String toString() {
         return this.nome; 

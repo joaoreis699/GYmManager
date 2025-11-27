@@ -24,7 +24,6 @@ import java.util.List;
 
 public class TelaControleCaixa extends JDialog {
 
-    // --- ESTILOS ---
     private static final Color COR_FUNDO = new Color(240, 242, 245);
     private static final Color COR_AZUL_PRINCIPAL = new Color(30, 90, 200);
     private static final Color COR_BRANCO = Color.WHITE;
@@ -33,7 +32,6 @@ public class TelaControleCaixa extends JDialog {
     private static final Font FONTE_TABELA = new Font("Segoe UI", Font.PLAIN, 14);
     private static final Font FONTE_CABECALHO = new Font("Segoe UI", Font.BOLD, 14);
 
-    // Componentes
     private JTable tabelaPagamentos;
     private DefaultTableModel modeloTabela;
     private JButton botaoBaixar, botaoVoltar;
@@ -56,16 +54,12 @@ public class TelaControleCaixa extends JDialog {
         painelPrincipal.setBorder(new EmptyBorder(20, 20, 20, 20));
         setContentPane(painelPrincipal);
 
-        // 1. TOPO
         painelPrincipal.add(criarHeader(), BorderLayout.NORTH);
 
-        // 2. CENTRO (TABELA)
         painelPrincipal.add(criarPainelTabela(), BorderLayout.CENTER);
 
-        // 3. RODAPÉ (AÇÕES)
         painelPrincipal.add(criarPainelBotoes(), BorderLayout.SOUTH);
 
-        // Carrega dados
         atualizarTabela();
     }
 
@@ -82,10 +76,8 @@ public class TelaControleCaixa extends JDialog {
     }
 
     private JScrollPane criarPainelTabela() {
-        // Colunas da Tabela
         String[] colunas = {"ID", "Aluno", "CPF", "Vencimento", "Valor (R$)", "Status"};
         
-        // Modelo não editável
         modeloTabela = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -101,14 +93,12 @@ public class TelaControleCaixa extends JDialog {
         tabelaPagamentos.setShowVerticalLines(false);
         tabelaPagamentos.setGridColor(new Color(230, 230, 230));
 
-        // Estilo do Cabeçalho
         JTableHeader header = tabelaPagamentos.getTableHeader();
         header.setFont(FONTE_CABECALHO);
         header.setBackground(COR_BRANCO);
         header.setForeground(new Color(80, 80, 80));
         header.setPreferredSize(new Dimension(0, 40));
 
-        // Centralizar texto nas células
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < colunas.length; i++) {
@@ -140,40 +130,32 @@ public class TelaControleCaixa extends JDialog {
     }
 
     private void atualizarTabela() {
-        // Limpa a tabela
         modeloTabela.setRowCount(0);
         
-        // Busca do Banco
         List<Pagamento> lista = pagamentoDAO.listarPendentes();
         
-        // Formatador de Data (Do padrão SQL para o Brasileiro)
         DateTimeFormatter formatoBanco = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter formatoBr = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         
         for (Pagamento p : lista) {
             
-            // 1. TRATAMENTO DA DATA
-            String dataBonita = p.getDataVencimento(); // Começa com o valor original
+            String dataBonita = p.getDataVencimento(); 
             try {
-                // Tenta converter e formatar
                 if (dataBonita != null && !dataBonita.isEmpty()) {
                     LocalDate dataObj = LocalDate.parse(dataBonita, formatoBanco);
                     dataBonita = dataObj.format(formatoBr);
                 }
             } catch (Exception e) {
-                // Se der erro (data inválida), mantém a original
             }
 
-            // 2. TRATAMENTO DO VALOR (Dinheiro)
-            // O "%.2f" garante 2 casas decimais (ex: 100.00)
             String valorBonito = String.format("R$ %.2f", p.getValor());
 
             Object[] linha = {
                 p.getId(),
                 p.getAluno().getNome(),
                 p.getAluno().getCpf(),
-                dataBonita,   // <-- Usamos a data formatada
-                valorBonito,  // <-- Usamos o valor formatado
+                dataBonita,  
+                valorBonito,  
                 p.getStatus()
             };
             modeloTabela.addRow(linha);
@@ -188,12 +170,10 @@ public class TelaControleCaixa extends JDialog {
             return;
         }
 
-        // Pega o ID (Coluna 0) e o Nome (Coluna 1) da linha selecionada
         int idPagamento = (int) tabelaPagamentos.getValueAt(linhaSelecionada, 0);
         String nomeAluno = (String) tabelaPagamentos.getValueAt(linhaSelecionada, 1);
         String valor = (String) tabelaPagamentos.getValueAt(linhaSelecionada, 4);
 
-        // Pergunta de Confirmação
         Object[] options = {"Dinheiro", "Pix", "Cartão", "Cancelar"};
         int resposta = JOptionPane.showOptionDialog(this,
             "Confirmar recebimento de R$ " + valor + " referente a " + nomeAluno + "?\n\nSelecione a forma de pagamento:",
@@ -204,7 +184,6 @@ public class TelaControleCaixa extends JDialog {
             options,
             options[0]);
 
-        // Se não cancelou (0, 1 ou 2)
         if (resposta >= 0 && resposta < 3) {
             String formaEscolhida = (String) options[resposta];
             
@@ -212,12 +191,11 @@ public class TelaControleCaixa extends JDialog {
             
             if (sucesso) {
                 JOptionPane.showMessageDialog(this, "Pagamento registrado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-                atualizarTabela(); // Recarrega a lista (o pagamento pago vai sumir, pois só mostramos pendentes)
+                atualizarTabela(); 
             }
         }
     }
 
-    // Helper de estilo simples
     private void estilizarBotao(JButton b, Color cor) {
         b.setBackground(cor);
         b.setForeground(Color.WHITE);

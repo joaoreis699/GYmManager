@@ -11,14 +11,16 @@ package br.com.gymmanager.model;
 
 public class ItemFicha {
     private int id;
-    private Exercicio exercicio; // O item TEM UM exercício
+    private Exercicio exercicio;
     private int series;
     private String repeticoes;
-    private String carga;
+    
+    private String tempo;
+    
+    private String divisao; 
 
     public ItemFicha() {}
 
-    // Getters e Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -31,6 +33,9 @@ public class ItemFicha {
     public String getRepeticoes() { return repeticoes; }
     public void setRepeticoes(String repeticoes) { this.repeticoes = repeticoes; }
 
-    public String getCarga() { return carga; }
-    public void setCarga(String carga) { this.carga = carga; }
+    public String getTempo() { return tempo; }
+    public void setTempo(String tempo) { this.tempo = tempo; }
+
+    public String getDivisao() { return divisao; }
+    public void setDivisao(String divisao) { this.divisao = divisao; }
 }

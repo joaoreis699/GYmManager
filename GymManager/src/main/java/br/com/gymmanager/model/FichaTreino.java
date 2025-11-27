@@ -19,12 +19,10 @@ public class FichaTreino {
     private String dataCriacao;
     private String status;
     
-    // O segredo: A ficha carrega sua própria lista de exercícios
     private List<ItemFicha> itens = new ArrayList<>();
 
     public FichaTreino() {}
 
-    // Getters e Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -43,7 +41,6 @@ public class FichaTreino {
     public List<ItemFicha> getItens() { return itens; }
     public void setItens(List<ItemFicha> itens) { this.itens = itens; }
     
-    // Método helper para facilitar adicionar itens
     public void adicionarItem(ItemFicha item) {
         this.itens.add(item);
     }

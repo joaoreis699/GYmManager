@@ -9,13 +9,11 @@ package br.com.gymmanager.view;
  * @author joaoreis699
  */
 
-import br.com.gymmanager.dao.PagamentoDAO;
-import br.com.gymmanager.model.Pagamento;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import br.com.gymmanager.dao.AlunoDAO;
+import br.com.gymmanager.dao.PagamentoDAO;
 import br.com.gymmanager.dao.PlanoDAO;
 import br.com.gymmanager.model.Aluno;
+import br.com.gymmanager.model.Pagamento;
 import br.com.gymmanager.model.Plano;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -28,12 +26,13 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
 public class TelaGestaoAlunos extends JDialog {
 
-    // --- CONSTANTES DE ESTILO ---
     private static final Color COR_FUNDO = new Color(240, 242, 245);
     private static final Color COR_AZUL_PRINCIPAL = new Color(30, 90, 200);
     private static final Color COR_BRANCO = Color.WHITE;
@@ -54,37 +53,34 @@ public class TelaGestaoAlunos extends JDialog {
             new EmptyBorder(5, 5, 5, 5)
     );
 
-    // --- Componentes ---
     private CardLayout layoutLadoDireito;
     private JPanel painelLadoDireito, painelFormulario, painelPlaceholder, painelListaCards;
     private JScrollPane scrollLista;
 
-    // Campos do Formulário
     private JLabel labelTituloForm, labelFotoPreview;
     private JTextField campoNome, campoEmail;
     private JFormattedTextField campoCpf, campoDataNasc, campoTelefone, campoDataMatricula;
-    private JComboBox<Plano> comboPlano; // ComboBox Especial para Planos
+    private JComboBox<Plano> comboPlano;
     private JComboBox<String> comboStatus;
     private JButton botaoAcaoPrimaria, botaoAcaoSecundaria, botaoSelecionarFoto;
     
     private String caminhoDaFotoSelecionada = null;
 
-    // DAOs e Estado
     private Aluno alunoSelecionadoParaEdicao = null;
     private AlunoDAO alunoDAO;
     private PlanoDAO planoDAO;
 
-    // Construtor
     public TelaGestaoAlunos(JFrame parent) {
         super(parent, "GymManager - Gestão de Alunos", true);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(screenSize.width, screenSize.height);
         setMinimumSize(new Dimension(1024, 768));
         setLocationRelativeTo(null);
 
         this.alunoDAO = new AlunoDAO();
-        this.planoDAO = new PlanoDAO(); // Necessário para listar os planos
+        this.planoDAO = new PlanoDAO();
 
         JPanel painelFundo = new JPanel(new BorderLayout(20, 20));
         painelFundo.setBackground(COR_FUNDO);
@@ -103,7 +99,6 @@ public class TelaGestaoAlunos extends JDialog {
         atualizarListaAlunos();
     }
 
-    // --- HEADER ---
     private JPanel criarHeader() {
         JPanel painelHeader = new JPanel(new BorderLayout());
         painelHeader.setBackground(COR_FUNDO);
@@ -125,7 +120,7 @@ public class TelaGestaoAlunos extends JDialog {
 
         painelHeader.add(painelLogoTitulo, BorderLayout.WEST);
 
-        JButton botaoVoltar = new JButton("Voltar para tela principal");
+        JButton botaoVoltar = new JButton("Voltar ao Dashboard");
         estilizarBotaoVoltar(botaoVoltar);
         botaoVoltar.addActionListener(e -> dispose());
         painelHeader.add(botaoVoltar, BorderLayout.EAST);
@@ -133,7 +128,6 @@ public class TelaGestaoAlunos extends JDialog {
         return painelHeader;
     }
 
-    // --- PAINEL ESQUERDO (LISTA) ---
     private JPanel criarPainelLadoEsquerdo() {
         JPanel painelCentral = new JPanel(new BorderLayout(0, 10));
         painelCentral.setOpaque(false);
@@ -168,7 +162,6 @@ public class TelaGestaoAlunos extends JDialog {
         return painelCentral;
     }
 
-    // --- PAINEL DIREITO (CARD LAYOUT) ---
     private JPanel criarPainelLadoDireito() {
         layoutLadoDireito = new CardLayout();
         painelLadoDireito = new JPanel(layoutLadoDireito);
@@ -191,13 +184,12 @@ public class TelaGestaoAlunos extends JDialog {
         return painelLadoDireito;
     }
 
-    // --- FORMULÁRIO ---
     private void criarPainelFormulario() {
         painelFormulario = new JPanel(new BorderLayout(10, 10));
         painelFormulario.setBackground(COR_BRANCO);
         painelFormulario.setBorder(BorderFactory.createCompoundBorder(
-        BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(220, 220, 220)),
-        new EmptyBorder(15, 20, 15, 20)));
+                BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(220, 220, 220)),
+                new EmptyBorder(15, 20, 15, 20)));
 
         labelTituloForm = new JLabel("Adicionar Novo Aluno");
         labelTituloForm.setFont(FONTE_TITULO_FORM);
@@ -211,7 +203,6 @@ public class TelaGestaoAlunos extends JDialog {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // FOTO
         gbc.gridx = 0; gbc.gridy = 0;
         JLabel labelFoto = new JLabel("Foto:");
         estilizarLabel(labelFoto);
@@ -228,38 +219,31 @@ public class TelaGestaoAlunos extends JDialog {
         botaoSelecionarFoto.addActionListener(e -> selecionarFoto());
         camposPanel.add(botaoSelecionarFoto, gbc);
 
-        // NOME
         addCampo(camposPanel, gbc, 1, "Nome:", campoNome = new JTextField());
         
-        // CPF
         try { campoCpf = new JFormattedTextField(new MaskFormatter("###.###.###-##")); } catch (Exception e) {}
         addCampo(camposPanel, gbc, 2, "CPF:", campoCpf);
 
-        // DATA NASC
         try { campoDataNasc = new JFormattedTextField(new MaskFormatter("##/##/####")); } catch (Exception e) {}
         addCampo(camposPanel, gbc, 3, "Data Nasc:", campoDataNasc);
 
-        // TELEFONE
         try { campoTelefone = new JFormattedTextField(new MaskFormatter("(##) #####-####")); } catch (Exception e) {}
         addCampo(camposPanel, gbc, 4, "Telefone:", campoTelefone);
 
-        // EMAIL
         addCampo(camposPanel, gbc, 5, "Email:", campoEmail = new JTextField());
 
-        // --- COMBOBOX DE PLANOS ---
         gbc.gridx = 0; gbc.gridy = 6;
         JLabel labelPlano = new JLabel("Plano:");
         estilizarLabel(labelPlano);
         camposPanel.add(labelPlano, gbc);
 
         gbc.gridx = 1; gbc.gridwidth = 2;
-        comboPlano = new JComboBox<>(); // Será preenchido dinamicamente
+        comboPlano = new JComboBox<>();
         comboPlano.setFont(FONTE_CAMPO_FORM);
         comboPlano.setBackground(COR_BRANCO);
         camposPanel.add(comboPlano, gbc);
-        gbc.gridwidth = 1; // Reseta
+        gbc.gridwidth = 1;
 
-        // STATUS
         gbc.gridx = 0; gbc.gridy = 7;
         JLabel labelStatus = new JLabel("Status:");
         estilizarLabel(labelStatus);
@@ -272,21 +256,18 @@ public class TelaGestaoAlunos extends JDialog {
         camposPanel.add(comboStatus, gbc);
         gbc.gridwidth = 1;
 
-        // DATA MATRÍCULA
         try { campoDataMatricula = new JFormattedTextField(new MaskFormatter("##/##/####")); } catch (Exception e) {}
-        // Preenche com a data de hoje por padrão
         campoDataMatricula.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
         addCampo(camposPanel, gbc, 8, "Matrícula:", campoDataMatricula);
 
         gbc.gridy = 9; gbc.weighty = 1.0;
-        camposPanel.add(new JLabel(), gbc); // Espaçador
+        camposPanel.add(new JLabel(), gbc);
 
         JScrollPane scrollForm = new JScrollPane(camposPanel);
         scrollForm.setOpaque(false); scrollForm.getViewport().setOpaque(false);
         scrollForm.setBorder(BorderFactory.createEmptyBorder());
         painelFormulario.add(scrollForm, BorderLayout.CENTER);
 
-        // Botões
         JPanel painelBotoes = new JPanel(new GridLayout(1, 2, 10, 0));
         painelBotoes.setOpaque(false);
         botaoAcaoPrimaria = new JButton("Salvar"); estilizarBotaoPrimario(botaoAcaoPrimaria);
@@ -295,21 +276,18 @@ public class TelaGestaoAlunos extends JDialog {
         painelFormulario.add(painelBotoes, BorderLayout.SOUTH);
     }
 
-    // --- LÓGICA DE DADOS ---
-
     private void preencherComboPlanos() {
         comboPlano.removeAllItems();
         List<Plano> planos = planoDAO.listarTodos();
         for (Plano p : planos) {
-            comboPlano.addItem(p); // O toString() do Plano mostrará o nome
+            comboPlano.addItem(p);
         }
     }
 
     private void salvarAluno() {
-        // 1. Coletar Dados
         String nome = campoNome.getText();
         String cpfFormatado = campoCpf.getText();
-        String cpfLimpo = cpfFormatado.replaceAll("[^0-9]", ""); 
+        String cpfLimpo = cpfFormatado.replaceAll("[^0-9]", "");
         String dataNasc = campoDataNasc.getText();
         String telefone = campoTelefone.getText();
         String email = campoEmail.getText();
@@ -317,7 +295,6 @@ public class TelaGestaoAlunos extends JDialog {
         String status = (String) comboStatus.getSelectedItem();
         String dataMatricula = campoDataMatricula.getText();
 
-        // 2. Validação
         if (nome.isEmpty() || cpfLimpo.length() != 11 || dataNasc.trim().length() < 10) {
             JOptionPane.showMessageDialog(this, "Preencha Nome, CPF e Data de Nascimento corretamente.", "Erro", JOptionPane.WARNING_MESSAGE);
             return;
@@ -327,19 +304,10 @@ public class TelaGestaoAlunos extends JDialog {
             return;
         }
 
-        // 3. Senha Automática
-        String senhaGerada = "";
-        if (cpfLimpo.length() >= 4) {
-            senhaGerada = cpfLimpo.substring(cpfLimpo.length() - 4);
-        } else {
-            senhaGerada = cpfLimpo;
-        }
-
         boolean sucesso = false;
-        boolean novoCadastro = (alunoSelecionadoParaEdicao == null); // Marca se é novo
+        boolean novoCadastro = (alunoSelecionadoParaEdicao == null);
 
         if (novoCadastro) {
-            // --- CADASTRO ---
             Aluno novoAluno = new Aluno();
             novoAluno.setNome(nome);
             novoAluno.setCpf(cpfLimpo);
@@ -349,12 +317,10 @@ public class TelaGestaoAlunos extends JDialog {
             novoAluno.setPlano(planoSelecionado);
             novoAluno.setStatus(status);
             novoAluno.setDataMatricula(dataMatricula);
-            novoAluno.setSenha(senhaGerada);
             novoAluno.setCaminhoFoto(caminhoDaFotoSelecionada);
 
             sucesso = alunoDAO.cadastrar(novoAluno);
         } else {
-            // --- ATUALIZAÇÃO ---
             Aluno alunoEditado = alunoSelecionadoParaEdicao;
             alunoEditado.setNome(nome);
             alunoEditado.setCpf(cpfLimpo);
@@ -372,52 +338,32 @@ public class TelaGestaoAlunos extends JDialog {
 
         if (sucesso) {
             String mensagem = "Dados salvos com sucesso!";
-          
+            
             if (novoCadastro) {
-                System.out.println("DEBUG: Iniciando geração de mensalidade...");
                 try {
-                    // 1. Busca o aluno recém-criado
                     Aluno alunoCompleto = alunoDAO.buscarPorCpf(cpfLimpo);
                     
                     if (alunoCompleto != null) {
-                        System.out.println("DEBUG: Aluno encontrado id=" + alunoCompleto.getId());
-                        
-                        // 2. Calcula data (Hoje + 30 dias)
                         LocalDate hoje = LocalDate.now();
                         LocalDate vencimento = hoje.plusDays(30);
                         
-                        // --- A CORREÇÃO ESTÁ AQUI: USAR PADRÃO ISO (yyyy-MM-dd) ---
-                        // O Banco de dados SÓ ACEITA assim para salvar.
                         String dataVencimentoBanco = vencimento.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                        
-                        // Apenas para exibir na mensagem bonita pro usuário
                         String dataVencimentoBr = vencimento.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
                         
-                        // 3. Cria o Pagamento
                         Pagamento primeiraMensalidade = new Pagamento();
                         primeiraMensalidade.setAluno(alunoCompleto);
                         primeiraMensalidade.setValor(alunoCompleto.getPlano().getValor());
-                        primeiraMensalidade.setDataVencimento(dataVencimentoBanco); // Usa a data ISO
+                        primeiraMensalidade.setDataVencimento(dataVencimentoBanco);
                         
-                        // 4. Salva
                         PagamentoDAO pagDAO = new PagamentoDAO();
-                        boolean gerou = pagDAO.gerarMensalidade(primeiraMensalidade);
+                        pagDAO.gerarMensalidade(primeiraMensalidade);
                         
-                        if (gerou) {
-                            System.out.println("DEBUG: Mensalidade salva no banco!");
-                            mensagem += "\n\n FINANCEIRO: 1ª Mensalidade gerada para " + dataVencimentoBr;
-                            mensagem += "\n Valor: R$ " + String.format("%.2f", alunoCompleto.getPlano().getValor());
-                        } else {
-                            System.out.println("DEBUG: Falha ao salvar mensalidade no DAO.");
-                        }
-                    } else {
-                        System.out.println("DEBUG: Aluno não encontrado após salvar (Erro no buscarPorCpf?)");
+                        mensagem += "\n\n FINANCEIRO: 1ª Mensalidade gerada para " + dataVencimentoBr;
+                        mensagem += "\n Valor: R$ " + String.format("%.2f", alunoCompleto.getPlano().getValor());
                     }
                 } catch (Exception e) {
-                    e.printStackTrace(); // Mostra o erro exato no console se houver
+                    e.printStackTrace();
                 }
-                
-                mensagem += "\n\n Senha de acesso: " + senhaGerada;
             }
 
             JOptionPane.showMessageDialog(this, mensagem);
@@ -425,9 +371,102 @@ public class TelaGestaoAlunos extends JDialog {
             atualizarListaAlunos();
         }
     }
+
+    private void atualizarListaAlunos() {
+        painelListaCards.removeAll();
+        List<Aluno> alunos = alunoDAO.listarTodos();
+        for (Aluno a : alunos) {
+            painelListaCards.add(criarCardAluno(a));
+            painelListaCards.add(Box.createRigidArea(new Dimension(0, 10)));
+        }
+        painelListaCards.revalidate(); painelListaCards.repaint();
+    }
+
+    private JPanel criarCardAluno(Aluno a) {
+        JPanel card = new JPanel(new BorderLayout(15, 15));
+        card.setBackground(COR_BRANCO);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(220, 220, 220)),
+                new EmptyBorder(10, 15, 10, 15)));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
+        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        JLabel labelFoto = new JLabel();
+        labelFoto.setPreferredSize(new Dimension(80, 80));
+        labelFoto.setHorizontalAlignment(SwingConstants.CENTER);
+        labelFoto.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+
+        try {
+            if (a.getCaminhoFoto() != null && !a.getCaminhoFoto().isEmpty()) {
+                ImageIcon icon = new ImageIcon(a.getCaminhoFoto());
+                Image img = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                labelFoto.setIcon(new ImageIcon(img));
+            } else {
+                labelFoto.setText("Sem Foto");
+            }
+        } catch (Exception e) {
+            labelFoto.setText("Sem Foto");
+        }
+        card.add(labelFoto, BorderLayout.WEST);
+
+        JPanel info = new JPanel(); info.setOpaque(false);
+        info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
+        
+        JLabel lNome = new JLabel(a.getNome()); lNome.setFont(FONTE_NOME_CARD); lNome.setForeground(COR_AZUL_PRINCIPAL);
+        
+        String nomePlano = (a.getPlano() != null) ? a.getPlano().getNome() : "Sem Plano";
+        JLabel lPlano = new JLabel(nomePlano + " - " + a.getStatus()); 
+        lPlano.setFont(FONTE_KPI_TITULO); lPlano.setForeground(COR_TEXTO_PADRAO);
+        
+        JLabel lCpf = new JLabel("CPF: " + a.getCpf()); lCpf.setFont(FONTE_INFO_CARD); lCpf.setForeground(Color.GRAY);
+
+        info.add(lNome); info.add(Box.createVerticalStrut(5));
+        info.add(lPlano); info.add(Box.createVerticalStrut(5));
+        info.add(lCpf);
+        
+        card.add(info, BorderLayout.CENTER);
+        
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                exibirModoEdicao(a);
+            }
+        });
+        return card;
+    }
+
+    private void exibirModoAdicao() {
+        alunoSelecionadoParaEdicao = null;
+        labelTituloForm.setText("Adicionar Novo Aluno");
+        limparCampos();
+        preencherComboPlanos();
+        
+        botaoAcaoPrimaria.setText("Salvar");
+        botaoAcaoSecundaria.setText("Cancelar"); estilizarBotaoPadrao(botaoAcaoSecundaria);
+        
+        limparListeners(botaoAcaoPrimaria); limparListeners(botaoAcaoSecundaria);
+        botaoAcaoPrimaria.addActionListener(e -> salvarAluno());
+        botaoAcaoSecundaria.addActionListener(e -> voltarAoPlaceholder());
+        
+        layoutLadoDireito.show(painelLadoDireito, "FORMULARIO");
+    }
     
+    private void exibirModoEdicao(Aluno a) {
+        alunoSelecionadoParaEdicao = a;
+        labelTituloForm.setText("Editar: " + a.getNome());
+        preencherComboPlanos();
+        preencherCampos(a);
+        
+        botaoAcaoPrimaria.setText("Atualizar");
+        botaoAcaoSecundaria.setText("Remover"); estilizarBotaoRemover(botaoAcaoSecundaria);
+        
+        limparListeners(botaoAcaoPrimaria); limparListeners(botaoAcaoSecundaria);
+        botaoAcaoPrimaria.addActionListener(e -> salvarAluno());
+        botaoAcaoSecundaria.addActionListener(e -> removerAluno(a));
+        
+        layoutLadoDireito.show(painelLadoDireito, "FORMULARIO");
+    }
+
     private void removerAluno(Aluno a) {
-        // Define os botões personalizados
         Object[] options = { "Sim", "Não" };
 
         int resposta = JOptionPane.showOptionDialog(
@@ -452,133 +491,18 @@ public class TelaGestaoAlunos extends JDialog {
         }
     }
 
-    private void atualizarListaAlunos() {
-        painelListaCards.removeAll();
-        List<Aluno> alunos = alunoDAO.listarTodos();
-        for (Aluno a : alunos) {
-            painelListaCards.add(criarCardAluno(a));
-            painelListaCards.add(Box.createRigidArea(new Dimension(0, 10)));
-        }
-        painelListaCards.revalidate(); painelListaCards.repaint();
-    }
-
-    private JPanel criarCardAluno(Aluno a) {
-        JPanel card = new JPanel(new BorderLayout(15, 15));
-        card.setBackground(COR_BRANCO);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(220, 220, 220)),
-                new EmptyBorder(10, 15, 10, 15)));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
-        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // --- LÓGICA DA FOTO (NOVO) ---
-        JLabel labelFoto = new JLabel();
-        labelFoto.setPreferredSize(new Dimension(80, 80)); // Tamanho fixo
-        labelFoto.setHorizontalAlignment(SwingConstants.CENTER);
-        labelFoto.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-
-        try {
-            if (a.getCaminhoFoto() != null && !a.getCaminhoFoto().isEmpty()) {
-                ImageIcon icon = new ImageIcon(a.getCaminhoFoto());
-                Image img = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
-                labelFoto.setIcon(new ImageIcon(img));
-            } else {
-                labelFoto.setText("Sem Foto");
-            }
-        } catch (Exception e) {
-            labelFoto.setText("Sem Foto");
-        }
-        card.add(labelFoto, BorderLayout.WEST);
-        // -----------------------------
-
-        // Info do Card
-        JPanel info = new JPanel(); info.setOpaque(false);
-        info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
-        
-        JLabel lNome = new JLabel(a.getNome()); lNome.setFont(FONTE_NOME_CARD); lNome.setForeground(COR_AZUL_PRINCIPAL);
-        
-        String nomePlano = (a.getPlano() != null) ? a.getPlano().getNome() : "Sem Plano";
-        JLabel lPlano = new JLabel(nomePlano + " - " + a.getStatus()); 
-        lPlano.setFont(FONTE_KPI_TITULO); lPlano.setForeground(COR_TEXTO_PADRAO);
-        
-        JLabel lCpf = new JLabel("CPF: " + a.getCpf()); lCpf.setFont(FONTE_INFO_CARD); lCpf.setForeground(Color.GRAY);
-
-        info.add(lNome); info.add(Box.createVerticalStrut(5));
-        info.add(lPlano); info.add(Box.createVerticalStrut(5));
-        info.add(lCpf);
-        
-        card.add(info, BorderLayout.CENTER);
-        
-        card.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                exibirModoEdicao(a);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                card.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, COR_AZUL_PRINCIPAL), new EmptyBorder(9, 14, 9, 14)));
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                card.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(220, 220, 220)), new EmptyBorder(10, 15, 10, 15)));
-            }
-        });
-        return card;
-    }
-
-    // --- CONTROLE DE FLUXO ---
-    private void exibirModoAdicao() {
-        alunoSelecionadoParaEdicao = null;
-        labelTituloForm.setText("Adicionar Novo Aluno");
-        limparCampos();
-        preencherComboPlanos(); // Atualiza a lista de planos ao abrir
-        
-        botaoAcaoPrimaria.setText("Salvar");
-        botaoAcaoSecundaria.setText("Cancelar"); estilizarBotaoPadrao(botaoAcaoSecundaria);
-        
-        limparListeners(botaoAcaoPrimaria); limparListeners(botaoAcaoSecundaria);
-        botaoAcaoPrimaria.addActionListener(e -> salvarAluno());
-        botaoAcaoSecundaria.addActionListener(e -> voltarAoPlaceholder());
-        
-        layoutLadoDireito.show(painelLadoDireito, "FORMULARIO");
-    }
-    
-    private void exibirModoEdicao(Aluno a) {
-        alunoSelecionadoParaEdicao = a;
-        labelTituloForm.setText("Editar: " + a.getNome());
-        preencherComboPlanos();
-        preencherCampos(a);
-        
-        botaoAcaoPrimaria.setText("Atualizar");
-        botaoAcaoSecundaria.setText("Remover"); estilizarBotaoRemover(botaoAcaoSecundaria);
-        
-        limparListeners(botaoAcaoPrimaria); limparListeners(botaoAcaoSecundaria);
-        botaoAcaoPrimaria.addActionListener(e -> salvarAluno());
-        botaoAcaoSecundaria.addActionListener(e -> removerAluno(a)); // Implementar depois
-        
-        layoutLadoDireito.show(painelLadoDireito, "FORMULARIO");
-    }
-
     private void limparCampos() {
-        campoNome.setText(""); 
-        campoCpf.setText(""); 
-        campoDataNasc.setText("");
-        campoTelefone.setText(""); 
-        campoEmail.setText(""); 
-        
-        // Reseta a foto
-        caminhoDaFotoSelecionada = null;
-        labelFotoPreview.setIcon(null); 
-        labelFotoPreview.setText("Sem Foto");
+        campoNome.setText(""); campoCpf.setText(""); campoDataNasc.setText("");
+        campoTelefone.setText(""); campoEmail.setText(""); caminhoDaFotoSelecionada = null;
+        labelFotoPreview.setIcon(null); labelFotoPreview.setText("Sem Foto");
     }
     
     private void preencherCampos(Aluno a) {
-        campoNome.setText(a.getNome()); 
-        campoCpf.setText(a.getCpf()); 
-        campoDataNasc.setText(a.getDataNascimento());
-        campoTelefone.setText(a.getTelefone()); 
-        campoEmail.setText(a.getEmail());
+        campoNome.setText(a.getNome()); campoCpf.setText(a.getCpf()); campoDataNasc.setText(a.getDataNascimento());
+        campoTelefone.setText(a.getTelefone()); campoEmail.setText(a.getEmail());
         comboStatus.setSelectedItem(a.getStatus());
         campoDataMatricula.setText(a.getDataMatricula());
         
-        // Selecionar Plano
         if (a.getPlano() != null) {
             for (int i = 0; i < comboPlano.getItemCount(); i++) {
                 Plano p = comboPlano.getItemAt(i);
@@ -589,7 +513,6 @@ public class TelaGestaoAlunos extends JDialog {
             }
         }
         
-        // --- LÓGICA DA FOTO (NOVO) ---
         caminhoDaFotoSelecionada = a.getCaminhoFoto();
         if (caminhoDaFotoSelecionada != null && !caminhoDaFotoSelecionada.isEmpty()) {
             try {
@@ -605,7 +528,32 @@ public class TelaGestaoAlunos extends JDialog {
             labelFotoPreview.setIcon(null);
             labelFotoPreview.setText("Sem Foto");
         }
-        // -----------------------------
+    }
+    
+    private void selecionarFoto() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Selecione uma foto");
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+            public boolean accept(File f) {
+                return f.getName().toLowerCase().endsWith(".png") ||
+                       f.getName().toLowerCase().endsWith(".jpg") ||
+                       f.isDirectory();
+            }
+            public String getDescription() {
+                return "Imagens (PNG, JPG)";
+            }
+        });
+
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            caminhoDaFotoSelecionada = selectedFile.getAbsolutePath();
+            
+            ImageIcon icon = new ImageIcon(caminhoDaFotoSelecionada);
+            Image img = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+            labelFotoPreview.setIcon(new ImageIcon(img));
+            labelFotoPreview.setText(null);
+        }
     }
 
     private void voltarAoPlaceholder() {
@@ -613,7 +561,6 @@ public class TelaGestaoAlunos extends JDialog {
         alunoSelecionadoParaEdicao = null;
     }
     
-    // --- HELPERS DE ESTILO E UTILITÁRIOS ---
     private void addCampo(JPanel p, GridBagConstraints gbc, int y, String label, Component c) {
         gbc.gridx = 0; gbc.gridy = y;
         JLabel l = new JLabel(label); estilizarLabel(l); p.add(l, gbc);
@@ -628,32 +575,7 @@ public class TelaGestaoAlunos extends JDialog {
     private void estilizarBotaoVoltar(JButton b) { b.setFont(new Font("Segoe UI", Font.BOLD, 12)); b.setBackground(new Color(80,80,80)); b.setForeground(Color.WHITE); b.setOpaque(true); b.setBorderPainted(false); b.setFocusPainted(false); b.setBorder(new EmptyBorder(8, 15, 8, 15)); }
     private void estilizarBotaoRemover(JButton b) { b.setBackground(COR_VERMELHO_REMOVER); b.setForeground(Color.WHITE); b.setOpaque(true); b.setBorderPainted(false); }
     private void limparListeners(JButton b) { for(ActionListener al: b.getActionListeners()) b.removeActionListener(al); }
-    private void selecionarFoto() {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Selecione uma foto");
-            fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
-                public boolean accept(File f) {
-                    return f.getName().toLowerCase().endsWith(".png") ||
-                           f.getName().toLowerCase().endsWith(".jpg") ||
-                           f.isDirectory();
-                }
-                public String getDescription() {
-                    return "Imagens (PNG, JPG)";
-                }
-            });
 
-            int result = fileChooser.showOpenDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                caminhoDaFotoSelecionada = selectedFile.getAbsolutePath();
-
-                ImageIcon icon = new ImageIcon(caminhoDaFotoSelecionada);
-                Image img = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
-                labelFotoPreview.setIcon(new ImageIcon(img));
-                labelFotoPreview.setText(null);
-            }
-        }
-    // Main para teste
     public static void main(String[] args) {
         try { for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) if ("Nimbus".equals(info.getName())) { UIManager.setLookAndFeel(info.getClassName()); break; } } catch (Exception e) {}
         UIManager.put("TextField.background", Color.WHITE);

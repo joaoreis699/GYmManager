@@ -9,24 +9,22 @@ package br.com.gymmanager.model;
  * @author joaoreis699
  */
 
+
 public class Plano {
     private int id;
     private String nome;
     private double valor;
+    private int duracaoMeses;
 
-    // 1. Construtor Vazio (Necessário para o DAO)
-    public Plano() {
-    }
+    public Plano() {}
 
-    // 2. Construtor Completo
-    public Plano(int id, String nome, double valor) {
+    public Plano(int id, String nome, double valor, int duracaoMeses) {
         this.id = id;
         this.nome = nome;
         this.valor = valor;
+        this.duracaoMeses = duracaoMeses;
     }
-
-    // --- GETTERS E SETTERS ---
-
+    
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -35,11 +33,10 @@ public class Plano {
 
     public double getValor() { return valor; }
     public void setValor(double valor) { this.valor = valor; }
+    
+    public int getDuracaoMeses() { return duracaoMeses; }
+    public void setDuracaoMeses(int duracaoMeses) { this.duracaoMeses = duracaoMeses; }
 
-    // --- IMPORTANTE PARA A TELA ---
-    // Este método toString faz com que, quando colocarmos o objeto Plano
-    // dentro de uma "caixa de seleção" (ComboBox), apareça o NOME dele,
-    // e não um código estranho de memória.
     @Override
     public String toString() {
         return this.nome;

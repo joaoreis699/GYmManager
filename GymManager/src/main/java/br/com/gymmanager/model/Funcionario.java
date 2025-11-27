@@ -8,33 +8,32 @@ import java.time.LocalDate;
  *
  * @author joaoreis699
  */
+
 public class Funcionario extends Pessoa {
+    
     private String cargo;
     private String dataAdmissao;
-    
+    private String senha;
+
     public Funcionario() {
         super();
     }
-    
-    public Funcionario(int id, String nome, String cpf, String dataNascimento, String cargo, String dataAdmissao, String senha, String caminhoFoto) {
-        super(id, nome, dataNascimento, cpf, senha, caminhoFoto);
+
+    public Funcionario(int id, String nome, String cpf, String dataNasc, String tel, String email, String foto, String cargo, String dataAdmissao, String senha) {
+        super(id, nome, cpf, dataNasc, tel, email, foto);
         this.cargo = cargo;
         this.dataAdmissao = dataAdmissao;
-        
+        this.senha = senha;
     }
-    
-    public Funcionario(String nome, String cpf, String dataNascimento, int id, String telefone, String email, String cargo, String dataAdmissao, String senha, String caminhoFoto) { 
-        super(id, nome, dataNascimento, cpf, senha, telefone, email, caminhoFoto);
-        this.cargo = cargo;
-        this.dataAdmissao = dataAdmissao;
-    }
-    
-    public String getCargo() { return cargo; } 
+
+    public String getCargo() { return cargo; }
     public void setCargo(String cargo) { this.cargo = cargo; }
-    
+
     public String getDataAdmissao() { return dataAdmissao; }
     public void setDataAdmissao(String dataAdmissao) { this.dataAdmissao = dataAdmissao; }
-}
 
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
+}
 
 

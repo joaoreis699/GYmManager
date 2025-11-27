@@ -11,7 +11,7 @@ package br.com.gymmanager.model;
 
 public class Pagamento {
     private int id;
-    private Aluno aluno; // O pagamento pertence a um Aluno
+    private Aluno aluno; 
     private double valor;
     private String dataVencimento;
     private String dataPagamento;

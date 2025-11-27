@@ -21,10 +21,6 @@ import javax.swing.JOptionPane;
 
 public class PagamentoDAO {
 
-    /**
-     * GERA UMA NOVA COBRANÇA (MENSALIDADE).
-     * Usado automaticamente quando um aluno é cadastrado.
-     */
     public boolean gerarMensalidade(Pagamento pag) {
         String sql = "INSERT INTO tb_pagamento (id_aluno, valor, data_vencimento, status, forma_pagamento) " +
                      "VALUES (?, ?, ?, ?, ?)";
@@ -39,8 +35,8 @@ public class PagamentoDAO {
             pstm.setInt(1, pag.getAluno().getId());
             pstm.setDouble(2, pag.getValor());
             pstm.setString(3, pag.getDataVencimento());
-            pstm.setString(4, "Pendente"); // Sempre nasce pendente
-            pstm.setString(5, null); // Forma de pagamento ainda não existe
+            pstm.setString(4, "Pendente");
+            pstm.setString(5, null);
 
             pstm.execute();
             return true;
@@ -53,10 +49,6 @@ public class PagamentoDAO {
         }
     }
 
-    /**
-     * LISTA PAGAMENTOS PENDENTES (Para a tela de Caixa).
-     * Faz JOIN com Aluno para mostrar o nome de quem deve.
-     */
     public List<Pagamento> listarPendentes() {
         String sql = "SELECT p.*, a.nome AS nome_aluno, a.cpf AS cpf_aluno " +
                      "FROM tb_pagamento p " +
@@ -80,7 +72,6 @@ public class PagamentoDAO {
                 p.setDataVencimento(rset.getString("data_vencimento"));
                 p.setStatus(rset.getString("status"));
                 
-                // Reconstrói o Aluno (básico) para saber quem é
                 Aluno a = new Aluno();
                 a.setId(rset.getInt("id_aluno"));
                 a.setNome(rset.getString("nome_aluno"));
@@ -98,39 +89,61 @@ public class PagamentoDAO {
         return lista;
     }
 
-    /**
-     * BAIXA O PAGAMENTO (Receber dinheiro).
-     * Atualiza o status para 'Pago' e define a data de hoje.
-     */
     public boolean baixarPagamento(int idPagamento, String formaPagamento) {
-        // CURDATE() é uma função do MySQL que pega a data atual
-        String sql = "UPDATE tb_pagamento SET status = 'Pago', data_pagamento = CURDATE(), forma_pagamento = ? " +
-                     "WHERE id_pagamento = ?";
-        
         Connection conn = null;
         PreparedStatement pstm = null;
+        ResultSet rs = null;
 
         try {
             conn = ConexaoDAO.getConexao();
-            pstm = conn.prepareStatement(sql);
+            conn.setAutoCommit(false); 
 
-            pstm.setString(1, formaPagamento); // Dinheiro, Pix, etc.
+            String sqlBaixa = "UPDATE tb_pagamento SET status = 'Pago', data_pagamento = CURDATE(), forma_pagamento = ? WHERE id_pagamento = ?";
+            pstm = conn.prepareStatement(sqlBaixa);
+            pstm.setString(1, formaPagamento);
             pstm.setInt(2, idPagamento);
-
             pstm.executeUpdate();
+
+            String sqlBusca = "SELECT pmt.id_aluno, pmt.valor, pmt.data_vencimento, pln.duracao_meses " +
+                              "FROM tb_pagamento pmt " +
+                              "JOIN tb_aluno a ON pmt.id_aluno = a.id_aluno " +
+                              "JOIN tb_plano pln ON a.id_plano = pln.id_plano " +
+                              "WHERE pmt.id_pagamento = ?";
+            
+            pstm = conn.prepareStatement(sqlBusca);
+            pstm.setInt(1, idPagamento);
+            rs = pstm.executeQuery();
+
+            if (rs.next()) {
+                int idAluno = rs.getInt("id_aluno");
+                double valor = rs.getDouble("valor");
+                String vencimentoAtualStr = rs.getString("data_vencimento"); 
+                int duracaoMeses = rs.getInt("duracao_meses"); // <-- NOVO: Duração do Plano
+
+                java.time.LocalDate dataAtual = java.time.LocalDate.parse(vencimentoAtualStr);
+                java.time.LocalDate proximoVencimento = dataAtual.plusMonths(duracaoMeses);
+                String novoVencimento = proximoVencimento.toString(); 
+
+                String sqlNovo = "INSERT INTO tb_pagamento (id_aluno, valor, data_vencimento, status) VALUES (?, ?, ?, 'Pendente')";
+                pstm = conn.prepareStatement(sqlNovo);
+                pstm.setInt(1, idAluno);
+                pstm.setDouble(2, valor);
+                pstm.setString(3, novoVencimento);
+                pstm.executeUpdate();
+            }
+
+            conn.commit(); 
             return true;
 
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao baixar pagamento: " + e.getMessage());
+        } catch (Exception e) {
+            try { if (conn != null) conn.rollback(); } catch (Exception ex) {}
+            e.printStackTrace();
             return false;
         } finally {
-            fecharConexao(conn, pstm, null);
+            fecharConexao(conn, pstm, rs);
         }
     }
 
-    /**
-     * CONTA QUANTAS PENDÊNCIAS EXISTEM (Para o Dashboard).
-     */
     public int contarPendencias() {
         String sql = "SELECT COUNT(*) AS total FROM tb_pagamento WHERE status = 'Pendente'";
         Connection conn = null;
@@ -154,7 +167,6 @@ public class PagamentoDAO {
         return total;
     }
     
-    // Helper
     private void fecharConexao(Connection conn, PreparedStatement pstm, ResultSet rset) {
         try {
             if (rset != null) rset.close();
